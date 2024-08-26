@@ -1,0 +1,33 @@
+package dev.pedrofaleiros.whoiswho_api.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import dev.pedrofaleiros.whoiswho_api.dto.request.LoginRequestDTO;
+import dev.pedrofaleiros.whoiswho_api.dto.request.SignupRequestDTO;
+import dev.pedrofaleiros.whoiswho_api.dto.response.AuthResponseDTO;
+import dev.pedrofaleiros.whoiswho_api.service.AuthService;
+import jakarta.validation.Valid;
+
+@RestController
+@RequestMapping("auth")
+public class AuthController {
+
+    @Autowired
+    private AuthService authService;
+
+    @PostMapping("signup")
+    public ResponseEntity<AuthResponseDTO> signup(@Valid @RequestBody SignupRequestDTO data) {
+        var response = authService.signup(data);
+        return ResponseEntity.ok().body(response);
+    }
+
+    @PostMapping("login")
+    public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginRequestDTO data) {
+        var response = authService.login(data);
+        return ResponseEntity.ok().body(response);
+    }
+}
