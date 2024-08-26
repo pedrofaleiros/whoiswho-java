@@ -13,7 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import dev.pedrofaleiros.whoiswho_api.dto.request.GameEnvRequestDTO;
+import dev.pedrofaleiros.whoiswho_api.dto.request.CreateGameEnvDTO;
+import dev.pedrofaleiros.whoiswho_api.dto.request.UpdateGameEnvDTO;
 import dev.pedrofaleiros.whoiswho_api.entity.GameEnvironment;
 import dev.pedrofaleiros.whoiswho_api.service.GameEnvService;
 import jakarta.validation.Valid;
@@ -26,10 +27,14 @@ public class GameEnvController {
     private GameEnvService service;
 
     @PostMapping
-    public ResponseEntity<GameEnvironment> create(Principal principal,
-            @Valid @RequestBody GameEnvRequestDTO data,
-            @RequestParam(required = false) String categoryId) {
-        var response = service.create(data, principal.getName(), categoryId);
+    public ResponseEntity<GameEnvironment> create(
+        Principal principal,
+        @Valid @RequestBody CreateGameEnvDTO data,
+        @RequestParam(required = false) String categoryId
+    ) {
+        data.setUsername(principal.getName());
+        data.setGameCategoryId(categoryId);
+        var response = service.create(data);
         return ResponseEntity.created(null).body(response);
     }
 
@@ -44,9 +49,14 @@ public class GameEnvController {
     }
 
     @PutMapping("{gameEnvId}")
-    public ResponseEntity<GameEnvironment> update(@Valid @RequestBody GameEnvRequestDTO data,
-            @PathVariable String gameEnvId, Principal principal) {
-        var response = service.update(data, gameEnvId, principal.getName());
+    public ResponseEntity<GameEnvironment> update(
+        Principal principal,
+        @Valid @RequestBody UpdateGameEnvDTO data,
+        @PathVariable String gameEnvId 
+    ) {
+        data.setGameEnvId(gameEnvId);
+        data.setUsername(principal.getName());
+        var response = service.update(data);
         return ResponseEntity.ok().body(response);
     }
 

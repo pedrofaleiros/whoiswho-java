@@ -15,7 +15,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import dev.pedrofaleiros.whoiswho_api.dto.request.GameEnvRequestDTO;
+import dev.pedrofaleiros.whoiswho_api.dto.request.CreateGameEnvDTO;
 import dev.pedrofaleiros.whoiswho_api.entity.GameCategory;
 import dev.pedrofaleiros.whoiswho_api.entity.GameEnvironment;
 import dev.pedrofaleiros.whoiswho_api.entity.UserEntity;
@@ -38,18 +38,20 @@ public class GameEnvServiceTest {
     @InjectMocks
     private GameEnvServiceImpl service;
 
-    private GameEnvRequestDTO data;
+    private CreateGameEnvDTO data;
     private UserEntity user;
     private GameEnvironment gameEnv;
     private GameCategory category;
 
     @Before
     public void setup() {
-        data = new GameEnvRequestDTO("gameEnvName");
         user = UserEntity.builder().id("1").username("username").build();
+        
         category = new GameCategory();
         category.setName("category");
         category.setId("1");
+
+        data = new CreateGameEnvDTO("gameEnvName", user.getUsername(), category.getId());
 
         gameEnv = GameEnvironment.builder().user(user).name(data.getName()).id("1")
                 .gameCategory(category).build();
@@ -61,7 +63,7 @@ public class GameEnvServiceTest {
         when(repository.save(any(GameEnvironment.class))).thenReturn(gameEnv);
         when(categoryService.findById(category.getId())).thenReturn(category);
 
-        GameEnvironment result = service.create(data, user.getUsername(), category.getId());
+        GameEnvironment result = service.create(data);
 
         verify(userService, times(1)).findByUsername(anyString());
         verify(categoryService, times(1)).findById(anyString());
@@ -75,7 +77,8 @@ public class GameEnvServiceTest {
         when(userService.findByUsername(user.getUsername())).thenReturn(user);
         when(repository.save(any(GameEnvironment.class))).thenReturn(gameEnv);
 
-        GameEnvironment result = service.create(data, user.getUsername(), null);
+        data.setGameCategoryId(null);
+        GameEnvironment result = service.create(data);
 
         verify(userService, times(1)).findByUsername(anyString());
         verify(categoryService, times(0)).findById(anyString());
@@ -90,7 +93,7 @@ public class GameEnvServiceTest {
         when(categoryService.findById(category.getId())).thenThrow(new GameCategoryNotFoundException());
 
         assertThrows(CustomEntityNotFoundException.class, () -> {
-            service.create(data, user.getUsername(), category.getId());
+            service.create(data);
         });
 
         verify(userService, times(1)).findByUsername(anyString());
@@ -103,7 +106,7 @@ public class GameEnvServiceTest {
         when(userService.findByUsername(user.getUsername())).thenThrow(new UserNotFoundException());
 
         assertThrows(UserNotFoundException.class, () -> {
-            service.create(data, user.getUsername(), category.getId());
+            service.create(data);
         });
         verify(userService, times(1)).findByUsername(anyString());
         verify(categoryService, times(0)).findById(anyString());
