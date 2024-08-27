@@ -4,6 +4,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import dev.pedrofaleiros.whoiswho_api.dto.request.PlayerRoleRequestDTO;
 import dev.pedrofaleiros.whoiswho_api.entity.PlayerRole;
+import dev.pedrofaleiros.whoiswho_api.exception.not_found.PlayerRoleNotFoundException;
 import dev.pedrofaleiros.whoiswho_api.repository.PlayerRoleRepository;
 import dev.pedrofaleiros.whoiswho_api.service.GameEnvService;
 import dev.pedrofaleiros.whoiswho_api.service.PlayerRoleService;
@@ -29,17 +30,20 @@ public class PlayerRoleServiceImpl implements PlayerRoleService {
 
     @Override
     public PlayerRole findById(String id) {
-        throw new UnsupportedOperationException("Unimplemented method 'findById'");
+        return repository.findById(id).orElseThrow(() -> new PlayerRoleNotFoundException());
     }
 
     @Override
     public List<PlayerRole> findByGameEnv(String gameEnvId, String username) {
-        throw new UnsupportedOperationException("Unimplemented method 'findByGameEnv'");
+        var gameEnv = gameEnvService.getGameEnvFromUser(gameEnvId, username);
+        return repository.findByGameEnvironmentId(gameEnv.getId());
     }
 
     @Override
     public void delete(String id, String username) {
-        throw new UnsupportedOperationException("Unimplemented method 'delete'");
+        var playerRole = findById(id);
+        gameEnvService.getGameEnvFromUser(playerRole.getGameEnvironment().getId(), username);
+        repository.delete(playerRole);
     }
-    
+
 }
