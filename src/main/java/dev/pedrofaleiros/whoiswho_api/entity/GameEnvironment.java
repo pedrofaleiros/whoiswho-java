@@ -36,6 +36,7 @@ public class GameEnvironment {
     @OneToMany(mappedBy = "gameEnvironment", cascade = CascadeType.ALL)
     private List<PlayerRole> playerRoles;
 
+    @JsonIgnore
     @ManyToOne(optional = true)
     @JoinColumn(name = "game_category_id", referencedColumnName = "id")
     private GameCategory gameCategory;

@@ -1,5 +1,6 @@
 package dev.pedrofaleiros.whoiswho_api.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -28,6 +29,7 @@ public class PlayerRole {
 
     private String name;
 
+    @JsonIgnore
     @ManyToOne(optional = false)
     @JoinColumn(name = "game_environment_id", referencedColumnName = "id")
     private GameEnvironment gameEnvironment;
