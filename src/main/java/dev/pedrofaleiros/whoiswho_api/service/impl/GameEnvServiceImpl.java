@@ -21,6 +21,7 @@ public class GameEnvServiceImpl implements GameEnvService {
     private UserService userService;
     private GameCategoryService categoryService;
 
+    @Override
     public GameEnvironment create(CreateGameEnvDTO data) {
         var gameEnv = GameEnvironment.builder();
         gameEnv.name(data.getName());
@@ -36,29 +37,35 @@ public class GameEnvServiceImpl implements GameEnvService {
         return repository.save(gameEnv.build());
     }
 
+    @Override
     public GameEnvironment update(UpdateGameEnvDTO data) {
         var gameEnv = getGameEnvFromUser(data.getGameEnvId(), data.getUsername());
         gameEnv.setName(data.getName());
         return repository.save(gameEnv);
     }
 
+    @Override
     public void delete(String id, String username) {
         var gameEnv = getGameEnvFromUser(id, username);
         repository.delete(gameEnv);
     }
 
+    @Override
     public List<GameEnvironment> findAll() {
         return repository.findByUserIsNull();
     }
 
+    @Override
     public List<GameEnvironment> findByUser(String username) {
         return repository.findByUserUsername(username);
     }
 
+    @Override
     public GameEnvironment findById(String id) {
         return repository.findById(id).orElseThrow(() -> new GameEnvNotFoundException());
     }
 
+    @Override
     public GameEnvironment getGameEnvFromUser(String gameEnvId, String username) {
         var gameEnv = findById(gameEnvId);
         if (gameEnv.getUser() == null) {

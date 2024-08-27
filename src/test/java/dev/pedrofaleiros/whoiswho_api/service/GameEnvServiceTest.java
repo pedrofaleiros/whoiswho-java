@@ -46,7 +46,7 @@ public class GameEnvServiceTest {
     @Before
     public void setup() {
         user = UserEntity.builder().id("1").username("username").build();
-        
+
         category = new GameCategory();
         category.setName("category");
         category.setId("1");
@@ -90,7 +90,8 @@ public class GameEnvServiceTest {
     @Test
     public void createCategoryNotFound_Error() {
         when(userService.findByUsername(user.getUsername())).thenReturn(user);
-        when(categoryService.findById(category.getId())).thenThrow(new GameCategoryNotFoundException());
+        when(categoryService.findById(category.getId()))
+                .thenThrow(new GameCategoryNotFoundException());
 
         assertThrows(CustomEntityNotFoundException.class, () -> {
             service.create(data);
@@ -138,5 +139,32 @@ public class GameEnvServiceTest {
         verify(repository, times(1)).findById(anyString());
         verify(userService, times(1)).findByUsername(anyString());
         verify(repository, times(0)).delete(gameEnv);
+    }
+
+    @Test
+    public void getGameEnvFromUser_OtherUser() {
+        var user2 = UserEntity.builder().id("id2").username("user2").build();
+        when(repository.findById(gameEnv.getId())).thenReturn(Optional.of(gameEnv));
+        when(userService.findByUsername(user2.getUsername())).thenReturn(user2);
+
+        assertThrows(NotAuthException.class, () -> {
+            service.getGameEnvFromUser(gameEnv.getId(), user2.getUsername());
+        });
+
+        verify(repository, times(1)).findById(anyString());
+        verify(userService, times(1)).findByUsername(anyString());
+    }
+    
+    @Test
+    public void getGameEnvFromUser_UserNull() {
+        gameEnv.setUser(null);
+        when(repository.findById(gameEnv.getId())).thenReturn(Optional.of(gameEnv));
+
+        assertThrows(NotAuthException.class, () -> {
+            service.getGameEnvFromUser(gameEnv.getId(), user.getUsername());
+        });
+
+        verify(repository, times(1)).findById(anyString());
+        verify(userService, times(0)).findByUsername(anyString());
     }
 }
