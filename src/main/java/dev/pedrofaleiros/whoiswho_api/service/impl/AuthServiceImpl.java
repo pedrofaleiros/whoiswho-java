@@ -1,6 +1,9 @@
 package dev.pedrofaleiros.whoiswho_api.service.impl;
 
 import java.util.Optional;
+
+import dev.pedrofaleiros.whoiswho_api.dto.request.UpdateUsernameDto;
+import dev.pedrofaleiros.whoiswho_api.exception.bad_request.CustomBadRequestException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import dev.pedrofaleiros.whoiswho_api.config.security.TokenService;
@@ -47,7 +50,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthResponseDTO login(LoginRequestDTO data) {
         Optional<UserEntity> user = userRepository.findByUsername(data.getUsername());
-        if (!user.isPresent()) {
+        if (user.isEmpty()) {
             throw new LoginException();
         }
         var passwordMatches = passwordEncoder.matches(data.getPassword(), user.get().getPassword());
@@ -59,6 +62,22 @@ public class AuthServiceImpl implements AuthService {
         return AuthResponseDTO.builder()
                 .id(user.get().getId())
                 .username(user.get().getUsername())
+                .token(token).build();
+    }
+
+    @Override
+    public AuthResponseDTO updateUsername(UpdateUsernameDto data) {
+        var findUser = userRepository.findByUsername(data.getUsername());
+        if(findUser.isPresent()){
+            throw new UsernameAlreadyExistsException();
+        }
+        UserEntity user = userRepository.findByUsername(data.getOldUsername()).orElseThrow(()->new LoginException());
+        user.setUsername(data.getUsername());
+        var savedUser = userRepository.save(user);
+        var token = tokenService.generateToken(savedUser);
+        return AuthResponseDTO.builder()
+                .id(savedUser.getId())
+                .username(savedUser.getUsername())
                 .token(token).build();
     }
 }

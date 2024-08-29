@@ -3,16 +3,14 @@ package dev.pedrofaleiros.whoiswho_api.dto.request;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
-public class LoginRequestDTO {
+@Setter
+public class UpdateUsernameDto {
     @NotBlank(message = "Username inválido")
     @Size(max = 32, message = "Nome deve conter no máximo 32 caracteres")
     String username;
 
-    @NotBlank(message = "Senha inválida")
-    @Size(max = 32, message = "Senha pode conter no máximo 32 caracteres")
-    @Size(min = 6, message = "Senha deve conter no mínimo 6 caracteres")
-    String password;
-
+    String oldUsername;
 }

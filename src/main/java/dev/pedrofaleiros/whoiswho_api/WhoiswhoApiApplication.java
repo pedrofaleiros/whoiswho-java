@@ -40,6 +40,11 @@ public class WhoiswhoApiApplication implements CommandLineRunner {
 
 		var gameEnv1 = gameEnvRepository.save(new GameEnvironment(null, "Aeroporto", null, null, user1));
 		var gameEnv2 = gameEnvRepository.save(new GameEnvironment(null, "Restaurante", null, null, user1));
+		gameEnvRepository.save(new GameEnvironment(null, "Biblioteca", null, null, user1));
+		gameEnvRepository.save(new GameEnvironment(null, "Condomínio", null, null, user1));
+		gameEnvRepository.save(new GameEnvironment(null, "Cinema", null, null, user1));
+		gameEnvRepository.save(new GameEnvironment(null, "Praia", null, null, user1));
+		gameEnvRepository.save(new GameEnvironment(null, "Onibus", null, null, user1));
 		gameEnvRepository.save(new GameEnvironment(null, "Escola", null, null, null));
 		gameEnvRepository.save(new GameEnvironment(null, "Faculdade", null, null, null));
 
