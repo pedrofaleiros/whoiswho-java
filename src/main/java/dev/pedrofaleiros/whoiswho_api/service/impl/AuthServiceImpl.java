@@ -8,7 +8,7 @@ import dev.pedrofaleiros.whoiswho_api.dto.request.LoginRequestDTO;
 import dev.pedrofaleiros.whoiswho_api.dto.request.SignupRequestDTO;
 import dev.pedrofaleiros.whoiswho_api.dto.response.AuthResponseDTO;
 import dev.pedrofaleiros.whoiswho_api.entity.UserEntity;
-import dev.pedrofaleiros.whoiswho_api.exception.bad_request.LoginException;
+import dev.pedrofaleiros.whoiswho_api.exception.LoginException;
 import dev.pedrofaleiros.whoiswho_api.exception.bad_request.UsernameAlreadyExistsException;
 import dev.pedrofaleiros.whoiswho_api.repository.UserRepository;
 import dev.pedrofaleiros.whoiswho_api.service.AuthService;

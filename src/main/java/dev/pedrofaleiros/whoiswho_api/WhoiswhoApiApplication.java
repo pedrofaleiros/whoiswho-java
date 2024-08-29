@@ -52,5 +52,4 @@ public class WhoiswhoApiApplication implements CommandLineRunner {
 		playerRoleRepository.save(new PlayerRole(null, "Cliente", gameEnv2));
 
 	}
-
 }

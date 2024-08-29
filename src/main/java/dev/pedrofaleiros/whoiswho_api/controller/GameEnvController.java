@@ -66,4 +66,10 @@ public class GameEnvController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("{id}")
+    public  ResponseEntity<GameEnvironment> findById(Principal principal, @PathVariable String id){
+        var response = service.getGameEnvFromUser(id, principal.getName());
+        return ResponseEntity.ok().body(response);
+    }
+
 }
