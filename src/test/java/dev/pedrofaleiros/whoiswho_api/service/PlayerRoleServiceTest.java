@@ -48,8 +48,7 @@ public class PlayerRoleServiceTest {
 
     @Test
     public void create_Success() {
-        when(gameEnvService.getGameEnvFromUser(gameEnv.getId(), user.getUsername()))
-                .thenReturn(gameEnv);
+        when(gameEnvService.findFromUserById(gameEnv.getId(), user.getUsername())).thenReturn(gameEnv);
         when(playerRoleRepository.save(any(PlayerRole.class))).thenReturn(playerRole);
 
         var data =
@@ -57,7 +56,7 @@ public class PlayerRoleServiceTest {
 
         var result = service.create(data);
 
-        verify(gameEnvService, times(1)).getGameEnvFromUser(anyString(), anyString());
+        verify(gameEnvService, times(1)).findFromUserById(anyString(), anyString());
         verify(playerRoleRepository, times(1)).save(any(PlayerRole.class));
 
         assertEquals(data.getName(), result.getName());
@@ -68,7 +67,7 @@ public class PlayerRoleServiceTest {
     public void createOtherUserGameEnv() {
         var user2 = UserEntity.builder().id("2").username("user2").build();
 
-        when(gameEnvService.getGameEnvFromUser(gameEnv.getId(), user2.getUsername()))
+        when(gameEnvService.findFromUserById(gameEnv.getId(), user2.getUsername()))
                 .thenThrow(new NotAuthException());
 
         var data = new PlayerRoleRequestDTO(playerRole.getName(), gameEnv.getId(),
@@ -78,7 +77,7 @@ public class PlayerRoleServiceTest {
             service.create(data);
         });
 
-        verify(gameEnvService, times(1)).getGameEnvFromUser(anyString(), anyString());
+        verify(gameEnvService, times(1)).findFromUserById(anyString(), anyString());
         verify(playerRoleRepository, times(0)).save(any(PlayerRole.class));
     }
 }

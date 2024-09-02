@@ -26,6 +26,11 @@ import lombok.Setter;
 @Builder
 public class GameEnvironment {
 
+    public GameEnvironment(String name, List<PlayerRole> list) {
+        this.name = name;
+        this.playerRoles = list;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;

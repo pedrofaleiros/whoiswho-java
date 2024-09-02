@@ -22,7 +22,7 @@ public class PlayerRoleServiceImpl implements PlayerRoleService {
         var playerRole = PlayerRole.builder();
         playerRole.name(data.getName());
 
-        var gameEnv = gameEnvService.getGameEnvFromUser(data.getGameEnvId(), data.getUsername());
+        var gameEnv = gameEnvService.findFromUserById(data.getGameEnvId(), data.getUsername());
         playerRole.gameEnvironment(gameEnv);
 
         return repository.save(playerRole.build());
@@ -34,15 +34,15 @@ public class PlayerRoleServiceImpl implements PlayerRoleService {
     }
 
     @Override
-    public List<PlayerRole> findByGameEnv(String gameEnvId, String username) {
-        var gameEnv = gameEnvService.getGameEnvFromUser(gameEnvId, username);
+    public List<PlayerRole> listByGameEnv(String gameEnvId, String username) {
+        var gameEnv = gameEnvService.findAuthorizedById(gameEnvId, username);
         return repository.findByGameEnvironmentId(gameEnv.getId());
     }
 
     @Override
     public void delete(String id, String username) {
         var playerRole = findById(id);
-        gameEnvService.getGameEnvFromUser(playerRole.getGameEnvironment().getId(), username);
+        gameEnvService.findFromUserById(playerRole.getGameEnvironment().getId(), username);
         repository.delete(playerRole);
     }
 

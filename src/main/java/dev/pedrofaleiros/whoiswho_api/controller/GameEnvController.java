@@ -38,14 +38,14 @@ public class GameEnvController {
         return ResponseEntity.created(null).body(response);
     }
 
-    @GetMapping("all")
-    public ResponseEntity<List<GameEnvironment>> findAll() {
-        return ResponseEntity.ok().body(service.findAll());
-    }
-
     @GetMapping
     public ResponseEntity<List<GameEnvironment>> findUserGameEnvs(Principal principal) {
-        return ResponseEntity.ok().body(service.findByUser(principal.getName()));
+        return ResponseEntity.ok().body(service.listByUser(principal.getName()));
+    }
+
+    @GetMapping("default")
+    public ResponseEntity<List<GameEnvironment>> findAll() {
+        return ResponseEntity.ok().body(service.listAll());
     }
 
     @PutMapping("{gameEnvId}")
@@ -67,8 +67,8 @@ public class GameEnvController {
     }
 
     @GetMapping("{id}")
-    public  ResponseEntity<GameEnvironment> findById(Principal principal, @PathVariable String id){
-        var response = service.getGameEnvFromUser(id, principal.getName());
+    public  ResponseEntity<GameEnvironment> getById(Principal principal, @PathVariable String id){
+        var response = service.findAuthorizedById(id, principal.getName());
         return ResponseEntity.ok().body(response);
     }
 

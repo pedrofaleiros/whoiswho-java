@@ -11,4 +11,6 @@ public interface GameEnvRepository extends JpaRepository<GameEnvironment, String
     List<GameEnvironment> findByUserIsNullOrUserUsername(String username);
 
     List<GameEnvironment> findByUserIsNull();
+
+    List<GameEnvironment> findAllByUserIsNullOrderByNameAsc();
 }

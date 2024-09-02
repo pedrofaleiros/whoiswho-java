@@ -23,6 +23,10 @@ import lombok.Setter;
 @Builder
 public class PlayerRole {
 
+    public PlayerRole(String name) {
+        this.name = name;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;

@@ -6,7 +6,10 @@ import dev.pedrofaleiros.whoiswho_api.entity.PlayerRole;
 
 public interface PlayerRoleService {
     PlayerRole create(PlayerRoleRequestDTO data);
+
     PlayerRole findById(String id);
-    List<PlayerRole> findByGameEnv(String gameEnvId, String username);
+
+    List<PlayerRole> listByGameEnv(String gameEnvId, String username);
+
     void delete(String id, String username);
 }

@@ -18,8 +18,8 @@ import lombok.AllArgsConstructor;
 public class GameEnvServiceImpl implements GameEnvService {
 
     private GameEnvRepository repository;
-    private UserService userService;
     private GameCategoryService categoryService;
+    private UserService userService;
 
     @Override
     public GameEnvironment create(CreateGameEnvDTO data) {
@@ -30,33 +30,32 @@ public class GameEnvServiceImpl implements GameEnvService {
         gameEnv.user(user);
 
         if (data.getGameCategoryId() != null) {
-            var category = categoryService.findById(data.getGameCategoryId() );
+            var category = categoryService.findById(data.getGameCategoryId());
             gameEnv.gameCategory(category);
         }
-
         return repository.save(gameEnv.build());
     }
 
     @Override
     public GameEnvironment update(UpdateGameEnvDTO data) {
-        var gameEnv = getGameEnvFromUser(data.getGameEnvId(), data.getUsername());
+        var gameEnv = findFromUserById(data.getGameEnvId(), data.getUsername());
         gameEnv.setName(data.getName());
         return repository.save(gameEnv);
     }
 
     @Override
     public void delete(String id, String username) {
-        var gameEnv = getGameEnvFromUser(id, username);
+        var gameEnv = findFromUserById(id, username);
         repository.delete(gameEnv);
     }
 
     @Override
-    public List<GameEnvironment> findAll() {
-        return repository.findByUserIsNull();
+    public List<GameEnvironment> listAll() {
+        return repository.findAllByUserIsNullOrderByNameAsc();
     }
 
     @Override
-    public List<GameEnvironment> findByUser(String username) {
+    public List<GameEnvironment> listByUser(String username) {
         return repository.findByUserUsername(username);
     }
 
@@ -66,13 +65,24 @@ public class GameEnvServiceImpl implements GameEnvService {
     }
 
     @Override
-    public GameEnvironment getGameEnvFromUser(String gameEnvId, String username) {
+    public GameEnvironment findAuthorizedById(String gameEnvId, String username) {
+        var gameEnv = findById(gameEnvId);
+        if (gameEnv.getUser() == null) {
+            return gameEnv;
+        }
+        if (!gameEnv.getUser().getUsername().equals(username)) {
+            throw new NotAuthException();
+        }
+        return gameEnv;
+    }
+
+    @Override
+    public GameEnvironment findFromUserById(String gameEnvId, String username) {
         var gameEnv = findById(gameEnvId);
         if (gameEnv.getUser() == null) {
             throw new NotAuthException();
         }
-        var user = userService.findByUsername(username);
-        if (!user.getId().equals(gameEnv.getUser().getId())) {
+        if (!gameEnv.getUser().getUsername().equals(username)) {
             throw new NotAuthException();
         }
         return gameEnv;

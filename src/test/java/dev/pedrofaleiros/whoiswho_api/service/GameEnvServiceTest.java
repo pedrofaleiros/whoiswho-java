@@ -117,12 +117,10 @@ public class GameEnvServiceTest {
     @Test
     public void delete_Success() {
         when(repository.findById(gameEnv.getId())).thenReturn(Optional.of(gameEnv));
-        when(userService.findByUsername(user.getUsername())).thenReturn(user);
 
         service.delete(gameEnv.getId(), user.getUsername());
 
         verify(repository, times(1)).findById(anyString());
-        verify(userService, times(1)).findByUsername(anyString());
         verify(repository, times(1)).delete(gameEnv);
     }
 
@@ -130,14 +128,12 @@ public class GameEnvServiceTest {
     public void deleteOtherUser_Error() {
         var user2 = UserEntity.builder().id("id2").username("user2").build();
         when(repository.findById(gameEnv.getId())).thenReturn(Optional.of(gameEnv));
-        when(userService.findByUsername(user2.getUsername())).thenReturn(user2);
 
         assertThrows(NotAuthException.class, () -> {
             service.delete(gameEnv.getId(), user2.getUsername());
         });
 
         verify(repository, times(1)).findById(anyString());
-        verify(userService, times(1)).findByUsername(anyString());
         verify(repository, times(0)).delete(gameEnv);
     }
 
@@ -145,14 +141,12 @@ public class GameEnvServiceTest {
     public void getGameEnvFromUser_OtherUser() {
         var user2 = UserEntity.builder().id("id2").username("user2").build();
         when(repository.findById(gameEnv.getId())).thenReturn(Optional.of(gameEnv));
-        when(userService.findByUsername(user2.getUsername())).thenReturn(user2);
 
         assertThrows(NotAuthException.class, () -> {
-            service.getGameEnvFromUser(gameEnv.getId(), user2.getUsername());
+            service.findFromUserById(gameEnv.getId(), user2.getUsername());
         });
 
         verify(repository, times(1)).findById(anyString());
-        verify(userService, times(1)).findByUsername(anyString());
     }
     
     @Test
@@ -161,7 +155,7 @@ public class GameEnvServiceTest {
         when(repository.findById(gameEnv.getId())).thenReturn(Optional.of(gameEnv));
 
         assertThrows(NotAuthException.class, () -> {
-            service.getGameEnvFromUser(gameEnv.getId(), user.getUsername());
+            service.findFromUserById(gameEnv.getId(), user.getUsername());
         });
 
         verify(repository, times(1)).findById(anyString());

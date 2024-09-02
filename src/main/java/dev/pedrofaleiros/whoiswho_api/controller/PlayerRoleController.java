@@ -40,7 +40,7 @@ public class PlayerRoleController {
         Principal principal,
         @PathVariable String gameEnvId
     ){
-        var response = service.findByGameEnv(gameEnvId, principal.getName());
+        var response = service.listByGameEnv(gameEnvId, principal.getName());
         return ResponseEntity.ok().body(response);
     }
 
