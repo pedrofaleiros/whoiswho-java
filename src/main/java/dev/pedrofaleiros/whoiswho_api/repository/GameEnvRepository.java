@@ -6,7 +6,7 @@ import dev.pedrofaleiros.whoiswho_api.entity.GameEnvironment;
 
 public interface GameEnvRepository extends JpaRepository<GameEnvironment, String> {
 
-    List<GameEnvironment> findByUserUsername(String username);
+    List<GameEnvironment> findByUserUsernameOrderByNameAsc(String username);
 
     List<GameEnvironment> findByUserIsNullOrUserUsername(String username);
 

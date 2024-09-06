@@ -17,7 +17,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.cors.reactive.CorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 import dev.pedrofaleiros.whoiswho_api.config.security.filters.ExceptionHandlerFilter;
 import dev.pedrofaleiros.whoiswho_api.config.security.filters.SecurityFilter;
@@ -35,11 +34,11 @@ public class SecurityConfig {
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(csrf -> csrf.disable())
-                .sessionManagement(
-                        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth.requestMatchers("/auth/login").permitAll()
-                        .requestMatchers("/auth/signup").permitAll().requestMatchers("/admin/**")
-                        .hasRole("ADMIN").anyRequest().authenticated())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/auth/login").permitAll()
+                        .requestMatchers("/auth/signup").permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN").anyRequest().authenticated())
                 .addFilterBefore(exceptionHandlerFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
@@ -58,19 +57,26 @@ public class SecurityConfig {
 
     @Bean
     FilterRegistrationBean<CorsFilter> corsFilter() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration config = new CorsConfiguration();
+        var source = new UrlBasedCorsConfigurationSource();
+        var config = new CorsConfiguration();
+
         config.setAllowCredentials(true);
         config.setAllowedOriginPatterns(Arrays.asList("*"));
         config.addAllowedOrigin("http://localhost:4200");
-        config.setAllowedHeaders(Arrays.asList(HttpHeaders.AUTHORIZATION, HttpHeaders.CONTENT_TYPE,
+        config.setAllowedHeaders(Arrays.asList(
+                HttpHeaders.AUTHORIZATION, 
+                HttpHeaders.CONTENT_TYPE,
                 HttpHeaders.ACCEPT));
-        config.setAllowedMethods(Arrays.asList(HttpMethod.GET.name(), HttpMethod.POST.name(),
-                HttpMethod.PUT.name(), HttpMethod.DELETE.name()));
+        config.setAllowedMethods(Arrays.asList(
+                HttpMethod.GET.name(), 
+                HttpMethod.POST.name(),
+                HttpMethod.PUT.name(), 
+                HttpMethod.DELETE.name()));
         config.setMaxAge(3600L);
+
         source.registerCorsConfiguration("/**", config);
-        FilterRegistrationBean<CorsFilter> bean =
-                new FilterRegistrationBean<CorsFilter>(new CorsFilter(source));
+
+        var bean = new FilterRegistrationBean<CorsFilter>(new CorsFilter(source));
         bean.setOrder(-102);
         return bean;
     }

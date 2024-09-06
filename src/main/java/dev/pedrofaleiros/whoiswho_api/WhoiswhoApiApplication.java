@@ -343,9 +343,6 @@ public class WhoiswhoApiApplication implements CommandLineRunner {
         ))
     ));
     
-    System.out.println("-----------------------------------------");
-    System.out.println(places.size());
-    System.out.println("-----------------------------------------");
     for(var i = 0; i < places.size(); i++){
       var game = places.get(i);
       var created = gameEnvRepository.save(new GameEnvironment(null, game.getName(), null, null, null));

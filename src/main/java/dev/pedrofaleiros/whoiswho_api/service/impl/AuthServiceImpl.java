@@ -68,9 +68,10 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthResponseDTO updateUsername(UpdateUsernameDto data) {
         var findUser = userRepository.findByUsername(data.getUsername());
-        if(findUser.isPresent()){
+        if(findUser.isPresent() && !findUser.get().getUsername().equals(data.getOldUsername())){
             throw new UsernameAlreadyExistsException();
         }
+
         UserEntity user = userRepository.findByUsername(data.getOldUsername()).orElseThrow(()->new LoginException());
         user.setUsername(data.getUsername());
         var savedUser = userRepository.save(user);

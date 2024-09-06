@@ -56,7 +56,7 @@ public class GameEnvServiceImpl implements GameEnvService {
 
     @Override
     public List<GameEnvironment> listByUser(String username) {
-        return repository.findByUserUsername(username);
+        return repository.findByUserUsernameOrderByNameAsc(username);
     }
 
     @Override
