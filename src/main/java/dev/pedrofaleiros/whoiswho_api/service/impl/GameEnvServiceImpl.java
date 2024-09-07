@@ -24,7 +24,11 @@ public class GameEnvServiceImpl implements GameEnvService {
     @Override
     public GameEnvironment create(CreateGameEnvDTO data) {
         var gameEnv = GameEnvironment.builder();
-        gameEnv.name(data.getName());
+//        gameEnv.name(data.getName());
+
+        String name = data.getName();
+        String formattedName = name.substring(0, 1).toUpperCase() + name.substring(1);
+        gameEnv.name(formattedName);
 
         var user = userService.findByUsername(data.getUsername());
         gameEnv.user(user);
@@ -39,7 +43,10 @@ public class GameEnvServiceImpl implements GameEnvService {
     @Override
     public GameEnvironment update(UpdateGameEnvDTO data) {
         var gameEnv = findFromUserById(data.getGameEnvId(), data.getUsername());
-        gameEnv.setName(data.getName());
+//        gameEnv.setName(data.getName());
+        String name = gameEnv.getName();
+        String formattedName = name.substring(0, 1).toUpperCase() + name.substring(1);
+        gameEnv.setName(formattedName);
         return repository.save(gameEnv);
     }
 

@@ -1,6 +1,8 @@
 package dev.pedrofaleiros.whoiswho_api.config.security.filters;
 
 import java.io.IOException;
+
+import dev.pedrofaleiros.whoiswho_api.exception.NotAuthException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import com.auth0.jwt.exceptions.JWTVerificationException;
@@ -25,6 +27,10 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
         } catch (JWTVerificationException e) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             response.getWriter().write("Token JWT invalido");
+            response.getWriter().flush();
+        } catch (NotAuthException e) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("UNAUTHORIZED");
             response.getWriter().flush();
         } catch (RuntimeException e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);

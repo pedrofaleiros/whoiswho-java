@@ -1,6 +1,8 @@
 package dev.pedrofaleiros.whoiswho_api.config.security.filters;
 
 import java.io.IOException;
+
+import dev.pedrofaleiros.whoiswho_api.exception.NotAuthException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -30,7 +32,10 @@ public class SecurityFilter extends OncePerRequestFilter {
 
         if (login != null) {
             var user = userRepository.findByUsername(login)
-                    .orElseThrow(() -> new CustomEntityNotFoundException("Usuario nao encontrado"));
+                    .orElseThrow(() ->
+                    //        new CustomEntityNotFoundException("Usuario nao encontradooo")
+                            new NotAuthException()
+                    );
             var authorities = user.getAuthorities();
             var auth = new UsernamePasswordAuthenticationToken(user, null, authorities);
             SecurityContextHolder.getContext().setAuthentication(auth);
