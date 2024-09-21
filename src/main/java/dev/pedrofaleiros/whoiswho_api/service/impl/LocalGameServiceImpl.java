@@ -25,24 +25,33 @@ public class LocalGameServiceImpl implements LocalGameService {
     public LocalGameResponseDTO createGame(CreateLocalGameDTO data) {
 
         if (!data.isIncludeDefaultGameEnvs() && !data.isIncludeUserGameEnvs()) {
-            throw new CustomBadRequestException("Jogo invalido 1");
+            throw new CustomBadRequestException("Nenhum local encontrado");
         }
 
         var len = data.getPlayers().size();
-        if (len < 3 || data.getImpostors() > len / 2) {
-            throw new CustomBadRequestException("Jogo invalido 2");
-        }
-
-        if (data.getImpostors() < 1 || data.getImpostors() > 3) {
-            throw new CustomBadRequestException("Jogo invalido 3");
-        }
-
         var min = len - data.getImpostors();
 
+        validateImpostors(data, len);
+
+        List<GameEnvironment> gameEnvs = getGameEnvs(data, min);
+
+        var randomIndex = new Random().nextInt(gameEnvs.size());
+        var selectedGameEnv = gameEnvs.get(randomIndex);
+
+        var gameResponse = new LocalGameResponseDTO();
+        gameResponse.setGameEnv(selectedGameEnv.getName());
+        gameResponse.setPlayerRoles(
+            getPlayerRoles(selectedGameEnv.getPlayerRoles(), data.getPlayers(), data.getImpostors())
+        );
+
+        return gameResponse;
+    }
+
+    private List<GameEnvironment> getGameEnvs(CreateLocalGameDTO data, int min) {
         List<GameEnvironment> gameEnvs;
         if (data.isIncludeDefaultGameEnvs()) {
             if (data.isIncludeUserGameEnvs()) {
-                gameEnvs = mergeLists(data.getUsername(), min);
+                gameEnvs = getAllGameEnvs(data.getUsername(), min);
             } else {
                 gameEnvs = getDefaultGameEnvs(min);
             }
@@ -50,46 +59,48 @@ public class LocalGameServiceImpl implements LocalGameService {
             gameEnvs = getUserGameEnvs(data.getUsername(), min);
         }
         if (gameEnvs.isEmpty()) {
-            throw new CustomBadRequestException("Jogo invalido 4");
+            throw new CustomBadRequestException(
+                    "Nenhum local encontrado para essa quantidade de jogadores");
         }
-
-        var rand = new Random();
-        var index = rand.nextInt(gameEnvs.size());
-        var selectedGameEnv = gameEnvs.get(index);
-
-        var gameResponse = new LocalGameResponseDTO();
-
-        gameResponse.setGameEnv(selectedGameEnv.getName());
-        gameResponse.setPlayerRoles(getPlayerRoles(selectedGameEnv.getPlayerRoles(),
-                data.getPlayers(), min, data.getImpostors()));
-
-        return gameResponse;
+        return gameEnvs;
     }
 
-    private List<GamePlayerRole> getPlayerRoles(List<PlayerRole> playerRoles, List<String> players,
-            int min, int impostors) {
+    private void validateImpostors(CreateLocalGameDTO data, int len) {
+        if (len < 3 || data.getImpostors() > len / 2) {
+            throw new CustomBadRequestException("Impostores devem ser minoria");
+        }
+
+        if (data.getImpostors() < 1 || data.getImpostors() > 3) {
+            throw new CustomBadRequestException("Quantidade inválida de impostores");
+        }
+    }
+
+    private List<GamePlayerRole> getPlayerRoles(List<PlayerRole> playerRoles, List<String> players, int impostors) {
         if (playerRoles.size() < players.size() - impostors) {
-            throw new CustomBadRequestException("Jogo invalido 5");
+            throw new CustomBadRequestException(
+                    "Nenhum local encontrado para essa quantidade de jogadores.");
         }
 
         Collections.shuffle(playerRoles);
 
+        //Preencha lista
         var list = new ArrayList<GamePlayerRole>();
         for (var i = 0; i < players.size(); i++) {
             list.add(new GamePlayerRole(players.get(i), ""));
         }
-
+        
+        //Marca impostores
         int total = 0;
-
         while (total < impostors) {
             var rand = new Random().nextInt(players.size());
-
+            
             if (list.get(rand).getProfession() != null) {
                 list.get(rand).setProfession(null);
                 total++;
             }
         }
-
+        
+        //Marca papeis
         int j = 0;
         for (var i = 0; i < list.size(); i++) {
             if (list.get(i).getProfession() != null) {
@@ -100,7 +111,7 @@ public class LocalGameServiceImpl implements LocalGameService {
         return list;
     }
 
-    private List<GameEnvironment> mergeLists(String username, int min) {
+    private List<GameEnvironment> getAllGameEnvs(String username, int min) {
         var l1 = getDefaultGameEnvs(min);
         var l2 = getUserGameEnvs(username, min);
         var list = new ArrayList<GameEnvironment>();
