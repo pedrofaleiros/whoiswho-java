@@ -50,4 +50,8 @@ public class GameEnvironment {
     @ManyToOne(optional = true)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private UserEntity user;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "gameEnvironment", cascade = CascadeType.ALL)
+    private List<Game> games;
 }

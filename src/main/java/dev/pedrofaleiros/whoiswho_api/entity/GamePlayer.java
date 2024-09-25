@@ -1,15 +1,11 @@
 package dev.pedrofaleiros.whoiswho_api.entity;
 
-import java.util.List;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,30 +14,29 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "player_roles")
+@Table(name = "game_players")
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PlayerRole {
-
-    public PlayerRole(String name) {
-        this.name = name;
-    }
+public class GamePlayer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    private String name;
-
-    @JsonIgnore
     @ManyToOne(optional = false)
-    @JoinColumn(name = "game_environment_id", referencedColumnName = "id")
-    private GameEnvironment gameEnvironment;
+    @JoinColumn(name = "game_id", referencedColumnName = "id")
+    private Game game;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "playerRole")
-    private List<GamePlayer> gamePlayers;
+    @ManyToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private UserEntity user;
+
+    @ManyToOne
+    @JoinColumn(name = "player_role_id", referencedColumnName = "id")
+    private PlayerRole playerRole;
+
+    private boolean isImpostor;
 }

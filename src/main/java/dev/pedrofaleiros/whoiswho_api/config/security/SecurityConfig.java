@@ -33,12 +33,17 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
+                .headers(h -> h.frameOptions(f -> f.disable()))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/login").permitAll()
                         .requestMatchers("/auth/signup").permitAll()
-                        .requestMatchers("/admin/**").hasRole("ADMIN").anyRequest().authenticated())
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/h2/**").permitAll()
+                        .requestMatchers("/ws/**").permitAll()
+                        .anyRequest().authenticated()
+                )
                 .addFilterBefore(exceptionHandlerFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

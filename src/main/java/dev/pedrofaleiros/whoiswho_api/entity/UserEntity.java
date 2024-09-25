@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -32,11 +33,24 @@ public class UserEntity implements UserDetails {
     @JsonIgnore
     private String password;
 
+    @JsonIgnore
     private String role;
 
     @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<GameEnvironment> gameEnvironments;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<GamePlayer> gamePlayers;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    private List<Room> rooms;
+
+    @JsonIgnore
+    @ManyToMany(mappedBy = "users")
+    private Set<Room> roomsPlaying;
 
     @Override
     public String getPassword() {
@@ -48,14 +62,60 @@ public class UserEntity implements UserDetails {
         return username;
     }
 
+    @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         if (this.role.equals("ADMIN")) {
-            return List.of(
-                new SimpleGrantedAuthority("ROLE_USER"),
-                new SimpleGrantedAuthority("ROLE_ADMIN")
-            );
+            return List.of(new SimpleGrantedAuthority("ROLE_USER"),
+                    new SimpleGrantedAuthority("ROLE_ADMIN"));
         }
         return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+    }
+
+    @JsonIgnore
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @JsonIgnore
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @JsonIgnore
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @JsonIgnore
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        UserEntity user = (UserEntity) o;
+
+        if (id == null || user.id == null) {
+            return false;
+        }
+
+        return id.equals(user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        if (id == null) {
+            return super.hashCode();
+        }
+
+        return id.hashCode();
     }
 }
