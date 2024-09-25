@@ -58,9 +58,9 @@ public class RoomServiceImpl implements RoomService {
         var user = userService.findByUsername(username);
 
         if (room.getUsers().contains(user)) {
-            return room;
+            // return room;
             // TODO: custom exception
-//            throw new RuntimeException("Usuario ja esta na sala");
+           throw new RuntimeException("Usuario ja esta na sala");
         }
 
         room.getUsers().add(user);

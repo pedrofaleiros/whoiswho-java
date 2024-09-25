@@ -8,6 +8,7 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import dev.pedrofaleiros.whoiswho_api.dto.request.UpdateRoomDTO;
@@ -22,27 +23,37 @@ public class WSRoomController {
     private RoomService roomService;
     private SimpMessagingTemplate messagingTemplate;
 
+
     @MessageMapping("/join/{room}")
-    public void joinRoom(@DestinationVariable String room, @Payload String username,
+    @SendToUser("/queue/joinResponse")
+    public boolean joinRoom(@DestinationVariable String room, @Payload String username,
             SimpMessageHeaderAccessor headerAccessor) {
         var sessionId = headerAccessor.getSessionId();
-        headerAccessor.getSessionAttributes().put("username", username);
-        headerAccessor.getSessionAttributes().put("room", room);
 
         try {
             var updatedRoom = roomService.addUser(room, username);
+
+            //TODO: enviar users separados
+
             messagingTemplate.convertAndSend("/topic/" + updatedRoom.getId() + "/roomData",
                     updatedRoom);
+
+            headerAccessor.getSessionAttributes().put("username", username);
+            headerAccessor.getSessionAttributes().put("room", room);
+
+            return true;
         } catch (RuntimeException e) {
             System.out.println("Erro: " + e.getMessage());
             messagingTemplate.convertAndSendToUser(sessionId, "/queue/errors", e.getMessage(),
                     createHeaders(sessionId));
+            return false;
         }
     }
 
     @MessageMapping("/update/{room}")
     public void updateRoom(@DestinationVariable String room, @Payload UpdateRoomDTO data,
             SimpMessageHeaderAccessor headerAccessor) {
+
         var sessionId = headerAccessor.getSessionId();
         String username = (String) headerAccessor.getSessionAttributes().get("username");
 

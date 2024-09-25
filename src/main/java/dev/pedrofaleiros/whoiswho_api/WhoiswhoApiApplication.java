@@ -45,6 +45,7 @@ public class WhoiswhoApiApplication implements CommandLineRunner {
         .password(passwordEncoder.encode("pedro123")).role("USER").build());
 
     roomRepository.save(new Room("1234", user1, null, RoomStatus.IDLE, null, 1, true, true));
+    roomRepository.save(new Room("1111", user1, null, RoomStatus.IDLE, null, 3, true, false));
 
     var gameEnv1 =
         gameEnvRepository.save(new GameEnvironment(null, "Aeroporto", null, null, user1, null));

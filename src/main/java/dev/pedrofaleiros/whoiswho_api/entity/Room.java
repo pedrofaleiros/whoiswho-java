@@ -42,6 +42,7 @@ public class Room {
     @ManyToOne(optional = false)
     private UserEntity owner;
 
+    //TODO: JSON IGNORE
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "room_users",
             joinColumns = @JoinColumn(name = "room_id", referencedColumnName = "id"),
@@ -54,7 +55,6 @@ public class Room {
 
     @JsonIgnore
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL)
-//    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Game> games;
 
     private int impostors;
