@@ -20,33 +20,34 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class WSRoomController {
 
+    private UserService userService;
     private RoomService roomService;
     private SimpMessagingTemplate messagingTemplate;
 
 
     @MessageMapping("/join/{room}")
-    @SendToUser("/queue/joinResponse")
-    public boolean joinRoom(@DestinationVariable String room, @Payload String username,
+    // @SendToUser("/queue/joinResponse")
+    public void joinRoom(@DestinationVariable String room, @Payload String username,
             SimpMessageHeaderAccessor headerAccessor) {
         var sessionId = headerAccessor.getSessionId();
 
         try {
             var updatedRoom = roomService.addUser(room, username);
 
-            //TODO: enviar users separados
+            var users = userService.listByRoom(updatedRoom.getId());
 
             messagingTemplate.convertAndSend("/topic/" + updatedRoom.getId() + "/roomData",
                     updatedRoom);
 
+            messagingTemplate.convertAndSend("/topic/" + updatedRoom.getId() + "/users", users);
+
             headerAccessor.getSessionAttributes().put("username", username);
             headerAccessor.getSessionAttributes().put("room", room);
 
-            return true;
         } catch (RuntimeException e) {
             System.out.println("Erro: " + e.getMessage());
             messagingTemplate.convertAndSendToUser(sessionId, "/queue/errors", e.getMessage(),
                     createHeaders(sessionId));
-            return false;
         }
     }
 
@@ -82,8 +83,8 @@ public class WSRoomController {
 
         try {
             var updatedRoom = roomService.removeUser(room, username);
-            messagingTemplate.convertAndSend("/topic/" + updatedRoom.getId() + "/roomData",
-                    updatedRoom);
+            var users = userService.listByRoom(updatedRoom.getId());
+            messagingTemplate.convertAndSend("/topic/" + updatedRoom.getId() + "/users", users);
         } catch (RuntimeException e) {
             messagingTemplate.convertAndSendToUser(sessionId, "/queue/warnings", e.getMessage(),
                     createHeaders(sessionId));
