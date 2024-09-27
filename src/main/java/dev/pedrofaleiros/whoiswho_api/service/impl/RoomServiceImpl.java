@@ -1,15 +1,19 @@
 package dev.pedrofaleiros.whoiswho_api.service.impl;
 
+import java.util.HashSet;
 import java.util.Random;
+import org.hibernate.mapping.List;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import dev.pedrofaleiros.whoiswho_api.dto.request.UpdateRoomDTO;
 import dev.pedrofaleiros.whoiswho_api.entity.Room;
 import dev.pedrofaleiros.whoiswho_api.entity.RoomStatus;
+import dev.pedrofaleiros.whoiswho_api.entity.UserEntity;
 import dev.pedrofaleiros.whoiswho_api.exception.not_found.RoomNotFoundException;
 import dev.pedrofaleiros.whoiswho_api.repository.RoomRepository;
 import dev.pedrofaleiros.whoiswho_api.service.RoomService;
 import dev.pedrofaleiros.whoiswho_api.service.UserService;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 
 @Service
@@ -58,20 +62,21 @@ public class RoomServiceImpl implements RoomService {
         return repository.findById(id).orElseThrow(() -> new RoomNotFoundException(id));
     }
 
+    @Transactional
     @Override
     public Room addUser(String roomId, String username) {
         var room = findById(roomId);
         var user = userService.findByUsername(username);
-
+        
         if (room.getUsers().contains(user)) {
-            // TODO: custom exception
             throw new RuntimeException("Usuario ja esta na sala");
         }
-
+        
         room.getUsers().add(user);
         return repository.save(room);
     }
-
+    
+    @Transactional
     @Override
     public Room removeUser(String roomId, String username) {
         var room = findById(roomId);

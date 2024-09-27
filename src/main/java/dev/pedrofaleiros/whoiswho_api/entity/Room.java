@@ -38,12 +38,14 @@ public class Room {
     @ManyToOne(optional = false)
     private UserEntity owner;
 
-    //TODO: JSON IGNORE
+    // @ManyToMany(fetch = FetchType.EAGER)
     @JsonIgnore
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "room_users",
-            joinColumns = @JoinColumn(name = "room_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"))
+    @ManyToMany
+    @JoinTable(
+        name = "room_users",
+        joinColumns = @JoinColumn(name = "room_id", referencedColumnName = "id"),
+        inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id")
+    )
     private Set<UserEntity> users;
 
     @Enumerated(EnumType.STRING)

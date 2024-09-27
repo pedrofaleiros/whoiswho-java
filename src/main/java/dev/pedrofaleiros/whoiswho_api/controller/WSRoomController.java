@@ -11,8 +11,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import dev.pedrofaleiros.whoiswho_api.dto.request.UpdateRoomDTO;
-import dev.pedrofaleiros.whoiswho_api.service.RoomService;
-import dev.pedrofaleiros.whoiswho_api.service.UserService;
 import dev.pedrofaleiros.whoiswho_api.service.WSRoomService;
 import lombok.AllArgsConstructor;
 
@@ -39,6 +37,9 @@ public class WSRoomController {
             messagingTemplate.convertAndSend("/topic/" + updatedRoom.getId() + "/users", users);
 
         } catch (RuntimeException e) {
+
+            System.err.println(e.getMessage());
+
             messagingTemplate.convertAndSendToUser(sessionId, "/queue/errors", e.getMessage(), createHeaders(sessionId));
         }
     }
@@ -68,11 +69,14 @@ public class WSRoomController {
             SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor.wrap(event.getMessage());
             String username = (String) headerAccessor.getSessionAttributes().get("username");
             String room = (String) headerAccessor.getSessionAttributes().get("room");
-            
-            var users = service.removeUserFromRoom(room, username);
-            messagingTemplate.convertAndSend("/topic/" + room + "/users", users);
+
+            if(username != null && room != null ){
+                var users = service.removeUserFromRoom(room, username);
+                messagingTemplate.convertAndSend("/topic/" + room + "/users", users);
+            }
             
         } catch (RuntimeException e) {
+            System.err.println("ERRO REMOVE USER: " + e.getMessage());
             // messagingTemplate.convertAndSendToUser(sessionId, "/queue/warnings", e.getMessage(), createHeaders(sessionId));
         }
     }
