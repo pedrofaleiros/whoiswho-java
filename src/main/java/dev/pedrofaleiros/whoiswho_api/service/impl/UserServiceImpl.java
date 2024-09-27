@@ -1,7 +1,6 @@
 package dev.pedrofaleiros.whoiswho_api.service.impl;
 
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import dev.pedrofaleiros.whoiswho_api.entity.UserEntity;
 import dev.pedrofaleiros.whoiswho_api.exception.not_found.RoomNotFoundException;
@@ -17,7 +16,7 @@ import lombok.AllArgsConstructor;
 public class UserServiceImpl implements UserService {
 
     private UserRepository repository;
-    private RoomRepository roomRepository;
+    private RoomService roomService;
 
     @Override
     public UserEntity findByUsername(String username) {
@@ -26,9 +25,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserEntity> listByRoom(String roomId) {
-        var room = roomRepository.findById(roomId)
-                .orElseThrow(() -> new RoomNotFoundException(roomId));
-                
+        var room = roomService.findById(roomId);
+
         var users = repository.findByRoomsPlaying(room);
         return users;
     }

@@ -1,6 +1,7 @@
 package dev.pedrofaleiros.whoiswho_api.service.impl;
 
 import java.util.Random;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import dev.pedrofaleiros.whoiswho_api.dto.request.UpdateRoomDTO;
 import dev.pedrofaleiros.whoiswho_api.entity.Room;
@@ -12,11 +13,16 @@ import dev.pedrofaleiros.whoiswho_api.service.UserService;
 import lombok.AllArgsConstructor;
 
 @Service
-@AllArgsConstructor
 public class RoomServiceImpl implements RoomService {
 
     private RoomRepository repository;
     private UserService userService;
+
+    // Circular Dependencies
+    public RoomServiceImpl(RoomRepository repository, @Lazy UserService userService) {
+        this.repository = repository;
+        this.userService = userService;
+    }
 
     @Override
     public String generateRoomId() {
@@ -58,9 +64,8 @@ public class RoomServiceImpl implements RoomService {
         var user = userService.findByUsername(username);
 
         if (room.getUsers().contains(user)) {
-            // return room;
             // TODO: custom exception
-           throw new RuntimeException("Usuario ja esta na sala");
+            throw new RuntimeException("Usuario ja esta na sala");
         }
 
         room.getUsers().add(user);
@@ -97,6 +102,5 @@ public class RoomServiceImpl implements RoomService {
 
         return repository.save(room);
     }
-
 
 }

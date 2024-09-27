@@ -8,7 +8,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import dev.pedrofaleiros.whoiswho_api.config.security.TokenService;
-import dev.pedrofaleiros.whoiswho_api.exception.not_found.CustomEntityNotFoundException;
 import dev.pedrofaleiros.whoiswho_api.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

@@ -16,7 +16,6 @@ import dev.pedrofaleiros.whoiswho_api.repository.GameEnvRepository;
 import dev.pedrofaleiros.whoiswho_api.repository.PlayerRoleRepository;
 import dev.pedrofaleiros.whoiswho_api.repository.RoomRepository;
 import dev.pedrofaleiros.whoiswho_api.repository.UserRepository;
-import dev.pedrofaleiros.whoiswho_api.service.RoomService;
 import lombok.AllArgsConstructor;
 
 @SpringBootApplication

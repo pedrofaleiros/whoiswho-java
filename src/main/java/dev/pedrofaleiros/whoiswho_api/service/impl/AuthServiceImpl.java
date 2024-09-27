@@ -3,7 +3,6 @@ package dev.pedrofaleiros.whoiswho_api.service.impl;
 import java.util.Optional;
 
 import dev.pedrofaleiros.whoiswho_api.dto.request.UpdateUsernameDto;
-import dev.pedrofaleiros.whoiswho_api.exception.bad_request.CustomBadRequestException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import dev.pedrofaleiros.whoiswho_api.config.security.TokenService;

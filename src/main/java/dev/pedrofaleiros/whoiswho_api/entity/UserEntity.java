@@ -52,15 +52,15 @@ public class UserEntity implements UserDetails {
     @ManyToMany(mappedBy = "users")
     private Set<Room> roomsPlaying;
 
-    @Override
-    public String getPassword() {
-        return password;
-    }
+    // @Override
+    // public String getPassword() {
+    //     return password;
+    // }
 
-    @Override
-    public String getUsername() {
-        return username;
-    }
+    // @Override
+    // public String getUsername() {
+    //     return username;
+    // }
 
     @JsonIgnore
     @Override
@@ -72,34 +72,12 @@ public class UserEntity implements UserDetails {
         return List.of(new SimpleGrantedAuthority("ROLE_USER"));
     }
 
-    @JsonIgnore
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @JsonIgnore
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @JsonIgnore
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @JsonIgnore
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
-    
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         UserEntity user = (UserEntity) o;
 
@@ -119,3 +97,22 @@ public class UserEntity implements UserDetails {
         return id.hashCode();
     }
 }
+
+/*
+ * 
+ * @JsonIgnore
+ * 
+ * @Override public boolean isAccountNonExpired() { return true; }
+ * 
+ * @JsonIgnore
+ * 
+ * @Override public boolean isAccountNonLocked() { return true; }
+ * 
+ * @JsonIgnore
+ * 
+ * @Override public boolean isCredentialsNonExpired() { return true; }
+ * 
+ * @JsonIgnore
+ * 
+ * @Override public boolean isEnabled() { return true; }
+ */
