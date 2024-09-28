@@ -1,5 +1,6 @@
 package dev.pedrofaleiros.whoiswho_api.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -26,6 +27,7 @@ public class GamePlayer {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
+    @JsonIgnore
     @ManyToOne(optional = false)
     @JoinColumn(name = "game_id", referencedColumnName = "id")
     private Game game;

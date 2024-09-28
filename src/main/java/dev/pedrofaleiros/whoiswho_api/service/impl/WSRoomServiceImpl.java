@@ -5,7 +5,9 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import dev.pedrofaleiros.whoiswho_api.dto.request.UpdateRoomDTO;
 import dev.pedrofaleiros.whoiswho_api.dto.response.UserResponseDTO;
+import dev.pedrofaleiros.whoiswho_api.entity.Game;
 import dev.pedrofaleiros.whoiswho_api.entity.Room;
+import dev.pedrofaleiros.whoiswho_api.service.GameService;
 import dev.pedrofaleiros.whoiswho_api.service.RoomService;
 import dev.pedrofaleiros.whoiswho_api.service.UserService;
 import dev.pedrofaleiros.whoiswho_api.service.WSRoomService;
@@ -17,6 +19,7 @@ public class WSRoomServiceImpl implements WSRoomService {
 
     private RoomService roomService;
     private UserService userService;
+    private GameService gameService;
 
     @Override
     public Room addUserToRoom(String roomId, String username) {
@@ -44,6 +47,11 @@ public class WSRoomServiceImpl implements WSRoomService {
     @Override
     public Room updateRoomData(UpdateRoomDTO data) {
         return roomService.updateRoom(data);
+    }
+
+    @Override
+    public Game createGame(String roomId) {
+        return gameService.createGame(roomId);
     }
 
 }

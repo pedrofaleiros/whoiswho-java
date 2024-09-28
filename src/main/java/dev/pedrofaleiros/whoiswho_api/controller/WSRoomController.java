@@ -57,8 +57,24 @@ public class WSRoomController {
         
             var updatedRoom = service.updateRoomData(data);
             messagingTemplate.convertAndSend("/topic/" + updatedRoom.getId() + "/roomData", updatedRoom);
-
+            
         } catch (RuntimeException e) {
+            messagingTemplate.convertAndSendToUser(sessionId, "/queue/warnings", e.getMessage(), createHeaders(sessionId));
+        }
+    }
+    
+    @MessageMapping("/startGame/{room}")
+    public void startGame(@DestinationVariable String room, SimpMessageHeaderAccessor headerAccessor) {
+        var sessionId = headerAccessor.getSessionId();
+        
+        try {    
+            //TODO: verificar se usuario é owner
+            var game = service.createGame(room);  
+            
+            messagingTemplate.convertAndSend("/topic/" + room + "/game", game);
+        
+        } catch (RuntimeException e) {
+            System.err.println(e.getMessage());
             messagingTemplate.convertAndSendToUser(sessionId, "/queue/warnings", e.getMessage(), createHeaders(sessionId));
         }
     }

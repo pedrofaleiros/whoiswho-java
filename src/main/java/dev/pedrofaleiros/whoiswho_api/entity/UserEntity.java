@@ -54,12 +54,12 @@ public class UserEntity implements UserDetails {
 
     // @Override
     // public String getPassword() {
-    //     return password;
+    // return password;
     // }
 
     // @Override
     // public String getUsername() {
-    //     return username;
+    // return username;
     // }
 
     @JsonIgnore
@@ -96,23 +96,30 @@ public class UserEntity implements UserDetails {
 
         return id.hashCode();
     }
+
+    @JsonIgnore
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @JsonIgnore
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @JsonIgnore
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @JsonIgnore
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
 }
 
-/*
- * 
- * @JsonIgnore
- * 
- * @Override public boolean isAccountNonExpired() { return true; }
- * 
- * @JsonIgnore
- * 
- * @Override public boolean isAccountNonLocked() { return true; }
- * 
- * @JsonIgnore
- * 
- * @Override public boolean isCredentialsNonExpired() { return true; }
- * 
- * @JsonIgnore
- * 
- * @Override public boolean isEnabled() { return true; }
- */
