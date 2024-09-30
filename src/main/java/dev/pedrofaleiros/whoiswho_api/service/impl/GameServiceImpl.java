@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import org.springframework.stereotype.Service;
-import dev.pedrofaleiros.whoiswho_api.dto.request.CreateLocalGameDTO;
 import dev.pedrofaleiros.whoiswho_api.entity.Game;
 import dev.pedrofaleiros.whoiswho_api.entity.GameEnvironment;
 import dev.pedrofaleiros.whoiswho_api.entity.GamePlayer;
@@ -33,10 +32,13 @@ public class GameServiceImpl implements GameService {
 
     @Transactional
     @Override
-    public Game createGame(String roomId) {
+    public Game createGame(String roomId, String username) {
         var room = roomService.findById(roomId);
 
-        //TODO: custom
+        if(!room.getOwner().getUsername().equals(username)){
+            throw new RuntimeException("Apenas o ADM pode iniciar a partida");
+        }
+
         validateImpostors(room, room.getUsers().size());
 
         var game = Game.builder();
@@ -192,9 +194,9 @@ public class GameServiceImpl implements GameService {
             }
         }
 
-        for(var player:players){
-            createGamePlayer(game, player.getUser(), player.getPlayerRole());
-        }
+        // for(var player:players){
+        //     createGamePlayer(game, player.getUser(), player.getPlayerRole());
+        // }
 
         return players;
     }
@@ -207,5 +209,12 @@ public class GameServiceImpl implements GameService {
         if (room.getImpostors() < 1 || room.getImpostors() > 3) {
             throw new CustomBadRequestException("Quantidade inválida de impostores");
         }
+    }
+
+    @Override
+    public List<Game> listGames(String roomId) {
+        var room = roomService.findById(roomId);
+        var games = repository.findByRoomIdOrderByCreatedAt(room.getId());
+        return games;
     }
 }

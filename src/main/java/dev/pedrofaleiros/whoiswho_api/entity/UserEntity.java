@@ -52,16 +52,6 @@ public class UserEntity implements UserDetails {
     @ManyToMany(mappedBy = "users")
     private Set<Room> roomsPlaying;
 
-    // @Override
-    // public String getPassword() {
-    // return password;
-    // }
-
-    // @Override
-    // public String getUsername() {
-    // return username;
-    // }
-
     @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -11,6 +11,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import dev.pedrofaleiros.whoiswho_api.dto.request.UpdateRoomDTO;
+import dev.pedrofaleiros.whoiswho_api.entity.RoomStatus;
 import dev.pedrofaleiros.whoiswho_api.service.WSRoomService;
 import lombok.AllArgsConstructor;
 
@@ -27,14 +28,21 @@ public class WSRoomController {
         var sessionId = headerAccessor.getSessionId();
 
         try {
-            var updatedRoom = service.addUserToRoom(room, username);
-            var users = service.getRoomUsers(room);
+            var updatedUsers = service.addUserToRoom(room, username);
 
+            var roomData = service.getRoomData(room);
+            
             headerAccessor.getSessionAttributes().put("username", username);
             headerAccessor.getSessionAttributes().put("room", room);
-
-            messagingTemplate.convertAndSend("/topic/" + updatedRoom.getId() + "/roomData", updatedRoom);
-            messagingTemplate.convertAndSend("/topic/" + updatedRoom.getId() + "/users", users);
+            
+            if(roomData.getStatus().equals(RoomStatus.PLAYING)){
+                var game = service.getLatestGame(room);
+                messagingTemplate.convertAndSendToUser(sessionId, "queue/gameData", game, createHeaders(sessionId));
+            }
+            
+            // messagingTemplate.convertAndSend("/topic/" + roomData.getId() + "/roomData", roomData);
+            messagingTemplate.convertAndSendToUser(sessionId, "queue/roomData", roomData, createHeaders(sessionId));
+            messagingTemplate.convertAndSend("/topic/" + roomData.getId() + "/users", updatedUsers);
 
         } catch (RuntimeException e) {
 
@@ -68,11 +76,33 @@ public class WSRoomController {
         var sessionId = headerAccessor.getSessionId();
         
         try {    
-            //TODO: verificar se usuario é owner
-            var game = service.createGame(room);  
+            String username = (String) headerAccessor.getSessionAttributes().get("username");
+            if(username == null) throw new RuntimeException("Erro");
             
-            messagingTemplate.convertAndSend("/topic/" + room + "/game", game);
+            var game = service.startGame(room, username);
+            var updatedRoom = service.getRoomData(room);
+
+            messagingTemplate.convertAndSend("/topic/" + game.getRoom().getId() + "/gameData", game);
+            messagingTemplate.convertAndSend("/topic/" + game.getRoom().getId() + "/roomData", updatedRoom);
+            
+        } catch (RuntimeException e) {
+            System.err.println(e.getMessage());
+            messagingTemplate.convertAndSendToUser(sessionId, "/queue/warnings", e.getMessage(), createHeaders(sessionId));
+        }
+    }
+    
+    @MessageMapping("/finishGame/{room}")
+    public void finishGame(@DestinationVariable String room, SimpMessageHeaderAccessor headerAccessor) {
+        var sessionId = headerAccessor.getSessionId();
         
+        try {    
+            String username = (String) headerAccessor.getSessionAttributes().get("username");
+            if(username == null) throw new RuntimeException("Erro");
+            
+            var updatedRoom = service.finishGame(room, username);
+            
+            messagingTemplate.convertAndSend("/topic/" + updatedRoom.getId() + "/roomData", room);
+
         } catch (RuntimeException e) {
             System.err.println(e.getMessage());
             messagingTemplate.convertAndSendToUser(sessionId, "/queue/warnings", e.getMessage(), createHeaders(sessionId));
@@ -92,7 +122,6 @@ public class WSRoomController {
             }
             
         } catch (RuntimeException e) {
-            System.err.println("ERRO REMOVE USER: " + e.getMessage());
             // messagingTemplate.convertAndSendToUser(sessionId, "/queue/warnings", e.getMessage(), createHeaders(sessionId));
         }
     }

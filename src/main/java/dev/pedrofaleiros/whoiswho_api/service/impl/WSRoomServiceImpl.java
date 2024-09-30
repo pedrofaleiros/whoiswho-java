@@ -22,8 +22,9 @@ public class WSRoomServiceImpl implements WSRoomService {
     private GameService gameService;
 
     @Override
-    public Room addUserToRoom(String roomId, String username) {
-        return roomService.addUser(roomId, username);
+    public List<UserResponseDTO> addUserToRoom(String roomId, String username) {
+        var updatedRoom = roomService.addUser(roomId, username);
+        return getRoomUsers(updatedRoom.getId());
     }
 
     @Override
@@ -50,8 +51,33 @@ public class WSRoomServiceImpl implements WSRoomService {
     }
 
     @Override
-    public Game createGame(String roomId) {
-        return gameService.createGame(roomId);
+    public Game startGame(String roomId, String username) {
+        var game = gameService.createGame(roomId, username);
+        roomService.startGame(roomId);
+        return game;
     }
+
+    @Override
+    public Room finishGame(String roomId, String username) {
+        var room = roomService.finishGame(roomId, username);
+        return room;
+    }
+
+    @Override
+    public Game getLatestGame(String roomId) {
+        var games = gameService.listGames(roomId);
+
+        if (games.isEmpty())
+            return null;
+
+        return games.get(0);
+    }
+
+    @Override
+    public Room getRoomData(String roomId) {
+        return roomService.findById(roomId);
+    }
+
+
 
 }

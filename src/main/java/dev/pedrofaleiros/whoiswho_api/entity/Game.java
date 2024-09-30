@@ -2,9 +2,11 @@ package dev.pedrofaleiros.whoiswho_api.entity;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -32,6 +34,7 @@ public class Game {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "room_id", referencedColumnName = "id")
     private Room room;
@@ -40,9 +43,10 @@ public class Game {
     @JoinColumn(name = "game_environment_id", referencedColumnName = "id")
     private GameEnvironment gameEnvironment;
 
-    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<GamePlayer> gamePlayers;
 
+    @JsonIgnore
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

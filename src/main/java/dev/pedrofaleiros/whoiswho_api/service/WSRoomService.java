@@ -8,13 +8,19 @@ import java.util.List;
 
 public interface WSRoomService {
 
-    Room addUserToRoom(String roomId, String username);
+    List<UserResponseDTO> addUserToRoom(String roomId, String username);
 
     List<UserResponseDTO> removeUserFromRoom(String roomId, String username);
 
     List<UserResponseDTO> getRoomUsers(String roomId);
 
+    Room getRoomData(String roomId);
+
     Room updateRoomData(UpdateRoomDTO data);
 
-    Game createGame(String roomId);
+    Game startGame(String roomId, String username);
+
+    Room finishGame(String roomId, String username);
+
+    Game getLatestGame(String roomId);
 }
