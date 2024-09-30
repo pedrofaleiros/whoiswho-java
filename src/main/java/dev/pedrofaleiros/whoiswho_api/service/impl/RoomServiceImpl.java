@@ -106,18 +106,23 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public Room startGame(String roomId) {
-        //TODO: verificar se ja esta playing
-
         var room = findById(roomId);
+
+        if(room.getStatus().equals(RoomStatus.PLAYING)){
+            throw new RuntimeException("A partida ja foi iniciada");
+        }
+
         room.setStatus(RoomStatus.PLAYING);
         return repository.save(room);
     }
     
     @Override
     public Room finishGame(String roomId, String username) {
-        //TODO: verificar se ja esta idle
-
         var room = findById(roomId);
+
+        if(room.getStatus().equals(RoomStatus.IDLE)){
+            throw new RuntimeException("A partida ainda não foi iniciada");
+        }
 
         if (!room.getOwner().getUsername().equals(username)) {
             throw new RuntimeException("Apenas o ADM pode finalizar a partida");

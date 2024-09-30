@@ -35,12 +35,11 @@ public class WSRoomController {
             headerAccessor.getSessionAttributes().put("username", username);
             headerAccessor.getSessionAttributes().put("room", room);
             
-            if(roomData.getStatus().equals(RoomStatus.PLAYING)){
-                var game = service.getLatestGame(room);
+            var game = service.getLatestGame(room);
+            if(game != null){
                 messagingTemplate.convertAndSendToUser(sessionId, "queue/gameData", game, createHeaders(sessionId));
             }
             
-            // messagingTemplate.convertAndSend("/topic/" + roomData.getId() + "/roomData", roomData);
             messagingTemplate.convertAndSendToUser(sessionId, "queue/roomData", roomData, createHeaders(sessionId));
             messagingTemplate.convertAndSend("/topic/" + roomData.getId() + "/users", updatedUsers);
 
@@ -101,7 +100,7 @@ public class WSRoomController {
             
             var updatedRoom = service.finishGame(room, username);
             
-            messagingTemplate.convertAndSend("/topic/" + updatedRoom.getId() + "/roomData", room);
+            messagingTemplate.convertAndSend("/topic/" + updatedRoom.getId() + "/roomData", updatedRoom);
 
         } catch (RuntimeException e) {
             System.err.println(e.getMessage());
