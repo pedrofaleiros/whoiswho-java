@@ -70,14 +70,17 @@ public class WSRoomServiceImpl implements WSRoomService {
         if (games.isEmpty())
             return null;
 
-        return games.get(0);
+        return games.get(games.size()-1);
+    }
+
+    @Override
+    public List<Game> listRoomGames(String roomId) {
+        return gameService.listGames(roomId);
     }
 
     @Override
     public Room getRoomData(String roomId) {
         return roomService.findById(roomId);
     }
-
-
 
 }

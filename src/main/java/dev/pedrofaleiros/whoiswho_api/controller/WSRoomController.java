@@ -40,6 +40,10 @@ public class WSRoomController {
                 messagingTemplate.convertAndSendToUser(sessionId, "queue/gameData", game, createHeaders(sessionId));
             }
             
+            //Lista todos os jogos da sala
+            var games = service.listRoomGames(room);
+            messagingTemplate.convertAndSendToUser(sessionId, "queue/gamesList", games, createHeaders(sessionId));
+
             messagingTemplate.convertAndSendToUser(sessionId, "queue/roomData", roomData, createHeaders(sessionId));
             messagingTemplate.convertAndSend("/topic/" + roomData.getId() + "/users", updatedUsers);
 
@@ -81,8 +85,21 @@ public class WSRoomController {
             var game = service.startGame(room, username);
             var updatedRoom = service.getRoomData(room);
 
+            try {
+                messagingTemplate.convertAndSend("/topic/" + room + "/countdown", 3);
+                Thread.sleep(1000);
+                messagingTemplate.convertAndSend("/topic/" + room + "/countdown", 2);
+                Thread.sleep(1000);
+                messagingTemplate.convertAndSend("/topic/" + room + "/countdown", 1);
+                Thread.sleep(1000);
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+            }
+            
             messagingTemplate.convertAndSend("/topic/" + game.getRoom().getId() + "/gameData", game);
             messagingTemplate.convertAndSend("/topic/" + game.getRoom().getId() + "/roomData", updatedRoom);
+            
+            messagingTemplate.convertAndSend("/topic/" + room + "/countdown", 0);
             
         } catch (RuntimeException e) {
             System.err.println(e.getMessage());
@@ -99,8 +116,10 @@ public class WSRoomController {
             if(username == null) throw new RuntimeException("Erro");
             
             var updatedRoom = service.finishGame(room, username);
+            var games = service.listRoomGames(room);
             
             messagingTemplate.convertAndSend("/topic/" + updatedRoom.getId() + "/roomData", updatedRoom);
+            messagingTemplate.convertAndSend("/topic/" + updatedRoom.getId() + "/gamesList", games);
 
         } catch (RuntimeException e) {
             System.err.println(e.getMessage());

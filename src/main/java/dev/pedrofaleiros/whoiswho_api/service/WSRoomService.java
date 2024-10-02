@@ -23,4 +23,6 @@ public interface WSRoomService {
     Room finishGame(String roomId, String username);
 
     Game getLatestGame(String roomId);
+    
+    List<Game> listRoomGames(String roomId);
 }
