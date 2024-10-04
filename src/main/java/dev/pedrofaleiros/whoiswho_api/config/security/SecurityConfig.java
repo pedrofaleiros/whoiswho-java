@@ -66,17 +66,21 @@ public class SecurityConfig {
         var config = new CorsConfiguration();
 
         config.setAllowCredentials(true);
+        //TODO: 
         config.setAllowedOriginPatterns(Arrays.asList("*"));
-        config.addAllowedOrigin("http://localhost:4200");
+        // config.addAllowedOrigin("http://localhost:4200");
+
         config.setAllowedHeaders(Arrays.asList(
                 HttpHeaders.AUTHORIZATION, 
                 HttpHeaders.CONTENT_TYPE,
                 HttpHeaders.ACCEPT));
+
         config.setAllowedMethods(Arrays.asList(
                 HttpMethod.GET.name(), 
                 HttpMethod.POST.name(),
                 HttpMethod.PUT.name(), 
                 HttpMethod.DELETE.name()));
+                
         config.setMaxAge(3600L);
 
         source.registerCorsConfiguration("/**", config);

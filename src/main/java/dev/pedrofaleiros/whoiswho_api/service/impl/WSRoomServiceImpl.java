@@ -7,6 +7,8 @@ import dev.pedrofaleiros.whoiswho_api.dto.request.UpdateRoomDTO;
 import dev.pedrofaleiros.whoiswho_api.dto.response.UserResponseDTO;
 import dev.pedrofaleiros.whoiswho_api.entity.Game;
 import dev.pedrofaleiros.whoiswho_api.entity.Room;
+import dev.pedrofaleiros.whoiswho_api.exception.not_found.CustomEntityNotFoundException;
+import dev.pedrofaleiros.whoiswho_api.exception.websocket.WsErrorException;
 import dev.pedrofaleiros.whoiswho_api.service.GameService;
 import dev.pedrofaleiros.whoiswho_api.service.RoomService;
 import dev.pedrofaleiros.whoiswho_api.service.UserService;
@@ -23,8 +25,12 @@ public class WSRoomServiceImpl implements WSRoomService {
 
     @Override
     public List<UserResponseDTO> addUserToRoom(String roomId, String username) {
-        var updatedRoom = roomService.addUser(roomId, username);
-        return getRoomUsers(updatedRoom.getId());
+        try {
+            var updatedRoom = roomService.addUser(roomId, username);
+            return getRoomUsers(updatedRoom.getId());
+        } catch (RuntimeException e) {
+            throw new WsErrorException(e.getMessage());
+        }
     }
 
     @Override
@@ -70,7 +76,7 @@ public class WSRoomServiceImpl implements WSRoomService {
         if (games.isEmpty())
             return null;
 
-        return games.get(games.size()-1);
+        return games.get(games.size() - 1);
     }
 
     @Override

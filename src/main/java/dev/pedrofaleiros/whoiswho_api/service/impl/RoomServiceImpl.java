@@ -7,6 +7,8 @@ import dev.pedrofaleiros.whoiswho_api.dto.request.UpdateRoomDTO;
 import dev.pedrofaleiros.whoiswho_api.entity.Room;
 import dev.pedrofaleiros.whoiswho_api.entity.RoomStatus;
 import dev.pedrofaleiros.whoiswho_api.exception.not_found.RoomNotFoundException;
+import dev.pedrofaleiros.whoiswho_api.exception.websocket.WsErrorException;
+import dev.pedrofaleiros.whoiswho_api.exception.websocket.WsWarningException;
 import dev.pedrofaleiros.whoiswho_api.repository.RoomRepository;
 import dev.pedrofaleiros.whoiswho_api.service.RoomService;
 import dev.pedrofaleiros.whoiswho_api.service.UserService;
@@ -64,8 +66,9 @@ public class RoomServiceImpl implements RoomService {
         var room = findById(roomId);
         var user = userService.findByUsername(username);
 
+        //TODO: ver se precisa do equals
         if (room.getUsers().contains(user)) {
-            throw new RuntimeException("Usuario ja esta na sala");
+            throw new WsErrorException("Usuario ja esta na sala");
         }
 
         room.getUsers().add(user);
@@ -93,8 +96,7 @@ public class RoomServiceImpl implements RoomService {
         var user = userService.findByUsername(data.getUsername());
 
         if (!room.getOwner().getId().equals(user.getId())) {
-            // TODO: custom exception
-            throw new RuntimeException("Apenas o ADM pode atualizar os dados da sala");
+            throw new WsWarningException("Apenas o ADM pode atualizar os dados da sala");
         }
 
         room.setImpostors(data.getImpostors());

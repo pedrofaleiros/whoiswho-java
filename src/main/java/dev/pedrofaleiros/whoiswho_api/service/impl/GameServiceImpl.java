@@ -12,7 +12,7 @@ import dev.pedrofaleiros.whoiswho_api.entity.GamePlayer;
 import dev.pedrofaleiros.whoiswho_api.entity.PlayerRole;
 import dev.pedrofaleiros.whoiswho_api.entity.Room;
 import dev.pedrofaleiros.whoiswho_api.entity.UserEntity;
-import dev.pedrofaleiros.whoiswho_api.exception.bad_request.CustomBadRequestException;
+import dev.pedrofaleiros.whoiswho_api.exception.websocket.WsWarningException;
 import dev.pedrofaleiros.whoiswho_api.repository.GamePlayerRepository;
 import dev.pedrofaleiros.whoiswho_api.repository.GameRepository;
 import dev.pedrofaleiros.whoiswho_api.service.GameEnvService;
@@ -35,8 +35,8 @@ public class GameServiceImpl implements GameService {
     public Game createGame(String roomId, String username) {
         var room = roomService.findById(roomId);
 
-        if(!room.getOwner().getUsername().equals(username)){
-            throw new RuntimeException("Apenas o ADM pode iniciar a partida");
+        if (!room.getOwner().getUsername().equals(username)) {
+            throw new WsWarningException("Apenas o ADM pode iniciar a partida");
         }
 
         validateImpostors(room, room.getUsers().size());
@@ -45,12 +45,13 @@ public class GameServiceImpl implements GameService {
 
         game.room(room);
 
-        var gameEnv = gatGameRandGameEnv(room, room.getUsers().size());
+        var gameEnv = getGameRandGameEnv(room, room.getUsers().size());
         game.gameEnvironment(gameEnv);
 
         var createdGame = repository.save(game.build());
 
-        var gamePlayers = getPlayerRoles(gameEnv.getPlayerRoles(), room.getUsers(), room.getImpostors(), createdGame);
+        var gamePlayers = getPlayerRoles(gameEnv.getPlayerRoles(), room.getUsers(),
+                room.getImpostors(), createdGame);
         game.gamePlayers(gamePlayers);
 
         createdGame.setGamePlayers(gamePlayers);
@@ -75,7 +76,7 @@ public class GameServiceImpl implements GameService {
         return gamePlayerRepository.save(gamePlayer.build());
     }
 
-    private GameEnvironment gatGameRandGameEnv(Room room, int usersSize){
+    private GameEnvironment getGameRandGameEnv(Room room, int usersSize) {
         List<GameEnvironment> gameEnvs = getGameEnvs(room, usersSize);
 
         var randomIndex = new Random().nextInt(gameEnvs.size());
@@ -86,29 +87,31 @@ public class GameServiceImpl implements GameService {
 
     private List<GameEnvironment> getGameEnvs(Room room, int usersSize) {
         List<GameEnvironment> gameEnvs;
-        
+
         if (room.isIncludeDefaultGameEnvs()) {
             if (room.isIncludeUserGameEnvs()) {
-                gameEnvs = getAllGameEnvs(room.getOwner().getUsername(), usersSize);
+                gameEnvs = getAllGameEnvs(room.getOwner().getUsername(), usersSize,
+                        room.getImpostors());
             } else {
-                gameEnvs = getDefaultGameEnvs(usersSize);
+                gameEnvs = getDefaultGameEnvs(usersSize, room.getImpostors());
             }
         } else {
-            gameEnvs = getUserGameEnvs(room.getOwner().getUsername(), usersSize);
+            gameEnvs =
+                    getUserGameEnvs(room.getOwner().getUsername(), usersSize, room.getImpostors());
         }
 
         if (gameEnvs.isEmpty()) {
-            throw new CustomBadRequestException(
+            throw new WsWarningException(
                     "Nenhum local encontrado para essa quantidade de jogadores");
         }
 
         return gameEnvs;
     }
 
-    private List<GameEnvironment> getAllGameEnvs(String username, int usersSize) {
-        var l1 = getDefaultGameEnvs(usersSize);
-        var l2 = getUserGameEnvs(username, usersSize);
-        
+    private List<GameEnvironment> getAllGameEnvs(String username, int usersSize, int impostors) {
+        var l1 = getDefaultGameEnvs(usersSize, impostors);
+        var l2 = getUserGameEnvs(username, usersSize, impostors);
+
         var list = new ArrayList<GameEnvironment>();
 
         for (var i = 0; i < l1.size(); i++) {
@@ -121,93 +124,77 @@ public class GameServiceImpl implements GameService {
         return list;
     }
 
-    private List<GameEnvironment> getDefaultGameEnvs(int usersSize) {
+    private List<GameEnvironment> getDefaultGameEnvs(int usersSize, int impostors) {
         var gameEnvs = gameEnvService.listAll();
         var list = new ArrayList<GameEnvironment>();
 
         for (var i = 0; i < gameEnvs.size(); i++) {
             var el = gameEnvs.get(i);
-            if (el.getPlayerRoles().size() >= usersSize)
+            if (el.getPlayerRoles().size() >= usersSize - impostors)
                 list.add(el);
         }
         return list;
     }
 
-    private List<GameEnvironment> getUserGameEnvs(String username, int usersSize) {
+    private List<GameEnvironment> getUserGameEnvs(String username, int usersSize, int impostors) {
         var gameEnvs = gameEnvService.listByUser(username);
         var list = new ArrayList<GameEnvironment>();
 
         for (var i = 0; i < gameEnvs.size(); i++) {
             var el = gameEnvs.get(i);
-            if (el.getPlayerRoles().size() >= usersSize)
+            if (el.getPlayerRoles().size() >= usersSize - impostors)
                 list.add(el);
         }
         return list;
     }
- 
-    private List<GamePlayer> getPlayerRoles(List<PlayerRole> playerRoles, Set<UserEntity> users, int impostors, Game game) {
-        
+
+    private List<GamePlayer> getPlayerRoles(List<PlayerRole> playerRoles, Set<UserEntity> users,
+            int impostors, Game game) {
+
         if (playerRoles.size() < users.size() - impostors) {
-            throw new CustomBadRequestException("Nenhum local encontrado para essa quantidade de jogadores.");
+            throw new WsWarningException(
+                    "Nenhum local encontrado para essa quantidade de jogadores.");
         }
 
         Collections.shuffle(playerRoles);
 
-        //Preencha lista
+        // Preencha lista
         var players = new ArrayList<GamePlayer>();
         for (var user : users) {
-            players.add(GamePlayer.builder()
-                .game(game)
-                .user(user)
-                .isImpostor(false)
-                .playerRole(null)
-                .build());
-            // list.add(new GamePlayerRole(players.get(i), ""));
+            players.add(GamePlayer.builder().game(game).user(user).isImpostor(false)
+                    .playerRole(null).build());
         }
 
-        
-        //Marca impostores
+
+        // Marca impostores
         int total = 0;
         while (total < impostors) {
             var rand = new Random().nextInt(users.size());
-            
-            // if (list.get(rand).getProfession() != null) {
-            //     list.get(rand).setProfession(null);
-            //     total++;
-            // }
 
-            if(!players.get(rand).isImpostor()){
+            if (!players.get(rand).isImpostor()) {
                 players.get(rand).setImpostor(true);
                 total++;
             }
         }
-        
-        //Marca papeis
+
+        // Marca papeis
         int j = 0;
         for (var i = 0; i < players.size(); i++) {
-            // if (list.get(i).getProfession() != null) {
-            //     list.get(i).setProfession(playerRoles.get(j++).getName());
-            // }
-
-            if(!players.get(i).isImpostor()){
+            if (!players.get(i).isImpostor()) {
                 players.get(i).setPlayerRole(playerRoles.get(j++));
             }
         }
-
-        // for(var player:players){
-        //     createGamePlayer(game, player.getUser(), player.getPlayerRole());
-        // }
 
         return players;
     }
 
     private void validateImpostors(Room room, int usersSize) {
         if (usersSize < 3 || room.getImpostors() > usersSize / 2) {
-            throw new CustomBadRequestException("Impostores devem ser minoria");
+            throw new WsWarningException("Impostores devem ser minoria");
         }
 
         if (room.getImpostors() < 1 || room.getImpostors() > 3) {
-            throw new CustomBadRequestException("Quantidade inválida de impostores");
+            throw new WsWarningException("Quantidade inválida de impostores");
         }
     }
 
