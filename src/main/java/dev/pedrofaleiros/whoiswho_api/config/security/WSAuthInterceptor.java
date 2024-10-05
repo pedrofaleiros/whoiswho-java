@@ -9,6 +9,7 @@ import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import dev.pedrofaleiros.whoiswho_api.entity.UserDetailsImpl;
 import dev.pedrofaleiros.whoiswho_api.exception.NotAuthException;
 import dev.pedrofaleiros.whoiswho_api.repository.UserRepository;
 
@@ -31,8 +32,11 @@ public class WSAuthInterceptor implements ChannelInterceptor {
                 String username = tokenService.validateToken(token);
                 if (username != null) {
                     var user = userRepository.findByUsername(username).orElseThrow(NotAuthException::new);
-                    var authorities = user.getAuthorities();
-                    var auth = new UsernamePasswordAuthenticationToken(user, null, authorities);
+
+                    var userDetails = new UserDetailsImpl(user);
+
+                    var authorities = userDetails.getAuthorities();
+                    var auth = new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
                     SecurityContextHolder.getContext().setAuthentication(auth);
                 }
             }

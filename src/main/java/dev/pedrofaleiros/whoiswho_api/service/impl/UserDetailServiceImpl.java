@@ -4,6 +4,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
+import dev.pedrofaleiros.whoiswho_api.entity.UserDetailsImpl;
 import dev.pedrofaleiros.whoiswho_api.repository.UserRepository;
 import lombok.AllArgsConstructor;
 
@@ -15,8 +16,10 @@ public class UserDetailServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByUsername(username)
+        var user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        return new UserDetailsImpl(user);
     }
 
 }

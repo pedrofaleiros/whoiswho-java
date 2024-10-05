@@ -21,7 +21,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserEntity implements UserDetails {
+public class UserEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -52,16 +52,6 @@ public class UserEntity implements UserDetails {
     @ManyToMany(mappedBy = "users")
     private Set<Room> roomsPlaying;
 
-    @JsonIgnore
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        if (this.role.equals("ADMIN")) {
-            return List.of(new SimpleGrantedAuthority("ROLE_USER"),
-                    new SimpleGrantedAuthority("ROLE_ADMIN"));
-        }
-        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o)
@@ -85,30 +75,6 @@ public class UserEntity implements UserDetails {
         }
 
         return id.hashCode();
-    }
-
-    @JsonIgnore
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @JsonIgnore
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @JsonIgnore
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @JsonIgnore
-    @Override
-    public boolean isEnabled() {
-        return true;
     }
 
 }

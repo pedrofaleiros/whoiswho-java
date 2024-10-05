@@ -8,6 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import dev.pedrofaleiros.whoiswho_api.config.security.TokenService;
+import dev.pedrofaleiros.whoiswho_api.entity.UserDetailsImpl;
 import dev.pedrofaleiros.whoiswho_api.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -31,8 +32,11 @@ public class SecurityFilter extends OncePerRequestFilter {
 
         if (login != null) {
             var user = userRepository.findByUsername(login).orElseThrow(NotAuthException::new);
-            var authorities = user.getAuthorities();
-            var auth = new UsernamePasswordAuthenticationToken(user, null, authorities);
+
+            var userDetails = new UserDetailsImpl(user);
+
+            var authorities = userDetails.getAuthorities();
+            var auth = new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
             SecurityContextHolder.getContext().setAuthentication(auth);
         }
 
