@@ -1,5 +1,6 @@
 package dev.pedrofaleiros.whoiswho_api.controller;
 
+import java.security.Principal;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
