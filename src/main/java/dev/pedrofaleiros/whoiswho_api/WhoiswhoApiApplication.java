@@ -35,6 +35,12 @@ public class WhoiswhoApiApplication implements CommandLineRunner {
   // TODO: dev only
   @Override
   public void run(String... args) throws Exception {
+
+    var aux = userRepository.findAll();
+    if(!aux.isEmpty()){
+        return;
+    }
+
     var user1 = userRepository.save(UserEntity.builder().username("pedro")
         .password(passwordEncoder.encode("pedro123")).role("ADMIN").build());
 

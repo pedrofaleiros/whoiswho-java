@@ -1,6 +1,5 @@
 package dev.pedrofaleiros.whoiswho_api.controller;
 
-import java.security.Principal;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -99,6 +98,7 @@ public class WSRoomController {
         messagingTemplate.convertAndSend("/topic/" + updatedRoom.getId() + "/gamesList", games);
     }
 
+    //TODO: fix remover ao sair, um usuario pode 'estar 2 vezes' na sala
     @EventListener
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
         try {

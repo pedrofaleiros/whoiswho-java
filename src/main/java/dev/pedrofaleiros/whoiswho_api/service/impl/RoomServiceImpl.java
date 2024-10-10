@@ -68,7 +68,8 @@ public class RoomServiceImpl implements RoomService {
 
         //TODO: ver se precisa do equals
         if (room.getUsers().contains(user)) {
-            throw new WsErrorException("Usuario ja esta na sala");
+            return room;
+            // throw new WsErrorException("Usuario ja esta na sala");
         }
 
         room.getUsers().add(user);
