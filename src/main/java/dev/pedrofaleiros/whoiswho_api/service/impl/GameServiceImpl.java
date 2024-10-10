@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 import org.springframework.stereotype.Service;
 import dev.pedrofaleiros.whoiswho_api.entity.Game;
 import dev.pedrofaleiros.whoiswho_api.entity.GameEnvironment;
@@ -18,6 +17,7 @@ import dev.pedrofaleiros.whoiswho_api.repository.GameRepository;
 import dev.pedrofaleiros.whoiswho_api.service.GameEnvService;
 import dev.pedrofaleiros.whoiswho_api.service.GameService;
 import dev.pedrofaleiros.whoiswho_api.service.RoomService;
+import dev.pedrofaleiros.whoiswho_api.service.RoomUserService;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 
@@ -29,6 +29,7 @@ public class GameServiceImpl implements GameService {
     private RoomService roomService;
     private GameEnvService gameEnvService;
     private GamePlayerRepository gamePlayerRepository;
+    private RoomUserService roomUserService;
 
     @Transactional
     @Override
@@ -39,18 +40,19 @@ public class GameServiceImpl implements GameService {
             throw new WsWarningException("Apenas o ADM pode iniciar a partida");
         }
 
-        validateImpostors(room, room.getUsers().size());
+        var roomUsers = roomUserService.listRoomUsers(roomId);
+        validateImpostors(room, roomUsers.size());
 
         var game = Game.builder();
 
         game.room(room);
 
-        var gameEnv = getGameRandGameEnv(room, room.getUsers().size());
+        var gameEnv = getGameRandGameEnv(room, roomUsers.size());
         game.gameEnvironment(gameEnv);
 
         var createdGame = repository.save(game.build());
 
-        var gamePlayers = getPlayerRoles(gameEnv.getPlayerRoles(), room.getUsers(),
+        var gamePlayers = getPlayerRoles(gameEnv.getPlayerRoles(), roomUsers,
                 room.getImpostors(), createdGame);
         game.gamePlayers(gamePlayers);
 
@@ -148,7 +150,8 @@ public class GameServiceImpl implements GameService {
         return list;
     }
 
-    private List<GamePlayer> getPlayerRoles(List<PlayerRole> playerRoles, Set<UserEntity> users,
+    // private List<GamePlayer> getPlayerRoles(List<PlayerRole> playerRoles, Set<UserEntity> users,
+    private List<GamePlayer> getPlayerRoles(List<PlayerRole> playerRoles, List<UserEntity> users,
             int impostors, Game game) {
 
         if (playerRoles.size() < users.size() - impostors) {

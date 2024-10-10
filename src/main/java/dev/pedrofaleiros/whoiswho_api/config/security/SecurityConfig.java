@@ -66,7 +66,7 @@ public class SecurityConfig {
         var config = new CorsConfiguration();
 
         config.setAllowCredentials(true);
-        //TODO: 
+        //TODO: cors 
         config.setAllowedOriginPatterns(Arrays.asList("*"));
         // config.addAllowedOrigin("http://localhost:4200");
 

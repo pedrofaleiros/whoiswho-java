@@ -2,6 +2,7 @@ package dev.pedrofaleiros.whoiswho_api.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,9 +22,10 @@ public class RoomUser {
     @Id
     private String sessionId;
 
-    
+    @ManyToOne(optional = false)
     private Room room;
     
+    @ManyToOne(optional = false)
     private UserEntity user;
 
 }

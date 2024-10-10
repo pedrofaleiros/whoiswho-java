@@ -1,17 +1,16 @@
 package dev.pedrofaleiros.whoiswho_api.service.impl;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import dev.pedrofaleiros.whoiswho_api.dto.request.UpdateRoomDTO;
 import dev.pedrofaleiros.whoiswho_api.dto.response.UserResponseDTO;
 import dev.pedrofaleiros.whoiswho_api.entity.Game;
 import dev.pedrofaleiros.whoiswho_api.entity.Room;
-import dev.pedrofaleiros.whoiswho_api.exception.not_found.CustomEntityNotFoundException;
 import dev.pedrofaleiros.whoiswho_api.exception.websocket.WsErrorException;
 import dev.pedrofaleiros.whoiswho_api.service.GameService;
 import dev.pedrofaleiros.whoiswho_api.service.RoomService;
-import dev.pedrofaleiros.whoiswho_api.service.UserService;
+import dev.pedrofaleiros.whoiswho_api.service.RoomUserService;
 import dev.pedrofaleiros.whoiswho_api.service.WSRoomService;
 import lombok.AllArgsConstructor;
 
@@ -20,34 +19,31 @@ import lombok.AllArgsConstructor;
 public class WSRoomServiceImpl implements WSRoomService {
 
     private RoomService roomService;
-    private UserService userService;
     private GameService gameService;
+    private RoomUserService roomUserService;
 
     @Override
-    public List<UserResponseDTO> addUserToRoom(String roomId, String username) {
+    public List<UserResponseDTO> addUserToRoom(String roomId, String username, String sessionId) {
         try {
-            var updatedRoom = roomService.addUser(roomId, username);
-            return getRoomUsers(updatedRoom.getId());
+            roomUserService.create(username, roomId, sessionId);
+            return getRoomUsers(roomId);
         } catch (RuntimeException e) {
             throw new WsErrorException(e.getMessage());
         }
     }
 
     @Override
-    public List<UserResponseDTO> removeUserFromRoom(String roomId, String username) {
-        var updatedRoom = roomService.removeUser(roomId, username);
-        return getRoomUsers(updatedRoom.getId());
+    public List<UserResponseDTO> removeUserFromRoom(String sessionId, String roomId) {
+        roomUserService.remove(sessionId);
+        return getRoomUsers(roomId);
     }
 
     @Override
     public List<UserResponseDTO> getRoomUsers(String roomId) {
-        var list = userService.listByRoom(roomId);
-
-        var users = new ArrayList<UserResponseDTO>();
-        for (var el : list) {
-            users.add(new UserResponseDTO(el.getId(), el.getUsername()));
-        }
-
+        var roomUsers = roomUserService.listRoomUsers(roomId);
+        List<UserResponseDTO> users = roomUsers.stream()
+            .map(user -> new UserResponseDTO(user.getId(), user.getUsername()))
+            .collect(Collectors.toList());
         return users;
     }
 
@@ -72,10 +68,8 @@ public class WSRoomServiceImpl implements WSRoomService {
     @Override
     public Game getLatestGame(String roomId) {
         var games = gameService.listGames(roomId);
-
         if (games.isEmpty())
             return null;
-
         return games.get(games.size() - 1);
     }
 

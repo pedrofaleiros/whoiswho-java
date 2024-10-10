@@ -8,9 +8,9 @@ import java.util.List;
 
 public interface WSRoomService {
 
-    List<UserResponseDTO> addUserToRoom(String roomId, String username);
+    List<UserResponseDTO> addUserToRoom(String roomId, String username, String sessionId);
 
-    List<UserResponseDTO> removeUserFromRoom(String roomId, String username);
+    List<UserResponseDTO> removeUserFromRoom(String sessionId, String roomId);
 
     List<UserResponseDTO> getRoomUsers(String roomId);
 
@@ -23,6 +23,6 @@ public interface WSRoomService {
     Room finishGame(String roomId, String username);
 
     Game getLatestGame(String roomId);
-    
+
     List<Game> listRoomGames(String roomId);
 }

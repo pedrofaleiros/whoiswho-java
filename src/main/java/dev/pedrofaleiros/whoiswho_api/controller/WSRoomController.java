@@ -11,7 +11,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import dev.pedrofaleiros.whoiswho_api.dto.request.UpdateRoomDTO;
-import dev.pedrofaleiros.whoiswho_api.entity.RoomStatus;
 import dev.pedrofaleiros.whoiswho_api.exception.websocket.WsErrorException;
 import dev.pedrofaleiros.whoiswho_api.service.WSRoomService;
 import lombok.AllArgsConstructor;
@@ -27,7 +26,7 @@ public class WSRoomController {
     public void joinRoom(@DestinationVariable String room, @Payload String username, SimpMessageHeaderAccessor headerAccessor) {
         var sessionId = headerAccessor.getSessionId();
 
-        var updatedUsers = service.addUserToRoom(room, username);
+        var updatedUsers = service.addUserToRoom(room, username, sessionId);
 
         var roomData = service.getRoomData(room);
         
@@ -72,19 +71,6 @@ public class WSRoomController {
         
         messagingTemplate.convertAndSend("/topic/" + room + "/countdown", 0);
     }
-
-    private void countdown(String room) {
-        try {
-            messagingTemplate.convertAndSend("/topic/" + room + "/countdown", 3);
-            Thread.sleep(1000);
-            messagingTemplate.convertAndSend("/topic/" + room + "/countdown", 2);
-            Thread.sleep(1000);
-            messagingTemplate.convertAndSend("/topic/" + room + "/countdown", 1);
-            Thread.sleep(1000);
-        } catch (InterruptedException ie) {
-            Thread.currentThread().interrupt();
-        }
-    }
     
     @MessageMapping("/finishGame/{room}")
     public void finishGame(@DestinationVariable String room, SimpMessageHeaderAccessor headerAccessor) {
@@ -98,21 +84,33 @@ public class WSRoomController {
         messagingTemplate.convertAndSend("/topic/" + updatedRoom.getId() + "/gamesList", games);
     }
 
-    //TODO: fix remover ao sair, um usuario pode 'estar 2 vezes' na sala
     @EventListener
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
         try {
             SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor.wrap(event.getMessage());
-            String username = (String) headerAccessor.getSessionAttributes().get("username");
             String room = (String) headerAccessor.getSessionAttributes().get("room");
+            String sessionId = headerAccessor.getSessionId();
 
-            if(username != null && room != null ){
-                var users = service.removeUserFromRoom(room, username);
+            if(sessionId != null && room != null ){
+                var users = service.removeUserFromRoom(sessionId, room);
                 messagingTemplate.convertAndSend("/topic/" + room + "/users", users);
             }
             
         } catch (RuntimeException e) {
             System.out.println(e.getMessage());
+        }
+    }
+
+    private void countdown(String room) {
+        try {
+            messagingTemplate.convertAndSend("/topic/" + room + "/countdown", 3);
+            Thread.sleep(1000);
+            messagingTemplate.convertAndSend("/topic/" + room + "/countdown", 2);
+            Thread.sleep(1000);
+            messagingTemplate.convertAndSend("/topic/" + room + "/countdown", 1);
+            Thread.sleep(1000);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
         }
     }
 

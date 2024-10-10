@@ -10,10 +10,6 @@ public interface RoomService {
 
     Room findById(String id);
 
-    Room addUser(String roomId, String username);
-
-    Room removeUser(String roomId, String username);
-
     Room updateRoom(UpdateRoomDTO data);
 
     Room startGame(String roomId);

@@ -86,6 +86,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             SimpMessageHeaderAccessor headerAccessor) {
         var sessionId = headerAccessor.getSessionId();
 
+        System.out.println(ex.getMessage());
+
         if (ex instanceof WsErrorException) {
             messagingTemplate.convertAndSendToUser(sessionId, "/queue/errors", ex.getMessage(),
                     createHeaders(sessionId));

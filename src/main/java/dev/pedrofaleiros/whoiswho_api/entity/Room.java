@@ -1,7 +1,6 @@
 package dev.pedrofaleiros.whoiswho_api.entity;
 
 import java.util.List;
-import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -9,9 +8,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -36,14 +32,18 @@ public class Room {
     @ManyToOne(optional = false)
     private UserEntity owner;
 
+    // @JsonIgnore
+    // @ManyToMany
+    // @JoinTable(
+    //     name = "room_users",
+    //     joinColumns = @JoinColumn(name = "room_id", referencedColumnName = "id"),
+    //     inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id")
+    // )
+    // private Set<UserEntity> users;
+
     @JsonIgnore
-    @ManyToMany
-    @JoinTable(
-        name = "room_users",
-        joinColumns = @JoinColumn(name = "room_id", referencedColumnName = "id"),
-        inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id")
-    )
-    private Set<UserEntity> users;
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RoomUser> roomUsers;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

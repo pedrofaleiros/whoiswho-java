@@ -6,13 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -48,9 +43,13 @@ public class UserEntity {
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
     private List<Room> rooms;
 
+    // @JsonIgnore
+    // @ManyToMany(mappedBy = "users")
+    // private Set<Room> roomsPlaying;
+
     @JsonIgnore
-    @ManyToMany(mappedBy = "users")
-    private Set<Room> roomsPlaying;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RoomUser> roomUsers;
 
     @Override
     public boolean equals(Object o) {

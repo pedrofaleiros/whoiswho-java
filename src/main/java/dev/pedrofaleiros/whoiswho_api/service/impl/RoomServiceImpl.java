@@ -7,12 +7,10 @@ import dev.pedrofaleiros.whoiswho_api.dto.request.UpdateRoomDTO;
 import dev.pedrofaleiros.whoiswho_api.entity.Room;
 import dev.pedrofaleiros.whoiswho_api.entity.RoomStatus;
 import dev.pedrofaleiros.whoiswho_api.exception.not_found.RoomNotFoundException;
-import dev.pedrofaleiros.whoiswho_api.exception.websocket.WsErrorException;
 import dev.pedrofaleiros.whoiswho_api.exception.websocket.WsWarningException;
 import dev.pedrofaleiros.whoiswho_api.repository.RoomRepository;
 import dev.pedrofaleiros.whoiswho_api.service.RoomService;
 import dev.pedrofaleiros.whoiswho_api.service.UserService;
-import jakarta.transaction.Transactional;
 
 @Service
 public class RoomServiceImpl implements RoomService {
@@ -59,37 +57,6 @@ public class RoomServiceImpl implements RoomService {
     public Room findById(String id) {
         return repository.findById(id).orElseThrow(() -> new RoomNotFoundException(id));
     }
-
-    @Transactional
-    @Override
-    public Room addUser(String roomId, String username) {
-        var room = findById(roomId);
-        var user = userService.findByUsername(username);
-
-        //TODO: ver se precisa do equals
-        if (room.getUsers().contains(user)) {
-            return room;
-            // throw new WsErrorException("Usuario ja esta na sala");
-        }
-
-        room.getUsers().add(user);
-        return repository.save(room);
-    }
-
-    @Transactional
-    @Override
-    public Room removeUser(String roomId, String username) {
-        var room = findById(roomId);
-        var user = userService.findByUsername(username);
-
-        if (room.getUsers().contains(user)) {
-            room.getUsers().remove(user);
-            return repository.save(room);
-        }
-
-        return room;
-    }
-
 
     @Override
     public Room updateRoom(UpdateRoomDTO data) {
