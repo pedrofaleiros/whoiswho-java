@@ -1,5 +1,6 @@
 package dev.pedrofaleiros.whoiswho_api.controller;
 
+import java.security.Principal;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -23,14 +24,13 @@ public class WSRoomController {
     private SimpMessagingTemplate messagingTemplate;
 
     @MessageMapping("/join/{room}")
-    public void joinRoom(@DestinationVariable String room, @Payload String username, SimpMessageHeaderAccessor headerAccessor) {
+    public void joinRoom(@DestinationVariable String room, @Payload String username, SimpMessageHeaderAccessor headerAccessor, Principal principal) {
         var sessionId = headerAccessor.getSessionId();
 
         var updatedUsers = service.addUserToRoom(room, username, sessionId);
 
         var roomData = service.getRoomData(room);
         
-        headerAccessor.getSessionAttributes().put("username", username);
         headerAccessor.getSessionAttributes().put("room", room);
         
         var game = service.getLatestGame(room);
@@ -42,23 +42,23 @@ public class WSRoomController {
         messagingTemplate.convertAndSendToUser(sessionId, "queue/gamesList", games, createHeaders(sessionId));
 
         messagingTemplate.convertAndSendToUser(sessionId, "queue/roomData", roomData, createHeaders(sessionId));
-        messagingTemplate.convertAndSend("/topic/" + roomData.getId() + "/users", updatedUsers);
+        messagingTemplate.convertAndSend("/topic/" + roomData.getId() + ".users", updatedUsers);
     }
 
     @MessageMapping("/update/{room}")
-    public void updateRoom(@DestinationVariable String room, @Payload UpdateRoomDTO data, SimpMessageHeaderAccessor headerAccessor) {
-        String username = (String) headerAccessor.getSessionAttributes().get("username");
+    public void updateRoom(@DestinationVariable String room, @Payload UpdateRoomDTO data, Principal principal) {
+        String username = principal.getName();
 
         data.setUsername(username);
         data.setRoom(room);
     
         var updatedRoom = service.updateRoomData(data);
-        messagingTemplate.convertAndSend("/topic/" + updatedRoom.getId() + "/roomData", updatedRoom);
+        messagingTemplate.convertAndSend("/topic/" + updatedRoom.getId() + ".roomData", updatedRoom);
     }
     
     @MessageMapping("/startGame/{room}")
-    public void startGame(@DestinationVariable String room, SimpMessageHeaderAccessor headerAccessor) {
-        String username = (String) headerAccessor.getSessionAttributes().get("username");
+    public void startGame(@DestinationVariable String room, Principal principal) {
+        String username = principal.getName();
         if(username == null) throw new WsErrorException("Nenhum usuario");
         
         var game = service.startGame(room, username);
@@ -66,34 +66,35 @@ public class WSRoomController {
 
         countdown(room);
         
-        messagingTemplate.convertAndSend("/topic/" + game.getRoom().getId() + "/gameData", game);
-        messagingTemplate.convertAndSend("/topic/" + game.getRoom().getId() + "/roomData", updatedRoom);
+        messagingTemplate.convertAndSend("/topic/" + game.getRoom().getId() + ".gameData", game);
+        messagingTemplate.convertAndSend("/topic/" + game.getRoom().getId() + ".roomData", updatedRoom);
         
-        messagingTemplate.convertAndSend("/topic/" + room + "/countdown", 0);
+        messagingTemplate.convertAndSend("/topic/" + room + ".countdown", 0);
     }
     
     @MessageMapping("/finishGame/{room}")
-    public void finishGame(@DestinationVariable String room, SimpMessageHeaderAccessor headerAccessor) {
-        String username = (String) headerAccessor.getSessionAttributes().get("username");
+    public void finishGame(@DestinationVariable String room, Principal principal) {
+        String username = principal.getName();
         if(username == null) throw new RuntimeException("Erro");
         
         var updatedRoom = service.finishGame(room, username);
         var games = service.listRoomGames(room);
         
-        messagingTemplate.convertAndSend("/topic/" + updatedRoom.getId() + "/roomData", updatedRoom);
-        messagingTemplate.convertAndSend("/topic/" + updatedRoom.getId() + "/gamesList", games);
+        messagingTemplate.convertAndSend("/topic/" + updatedRoom.getId() + ".roomData", updatedRoom);
+        messagingTemplate.convertAndSend("/topic/" + updatedRoom.getId() + ".gamesList", games);
     }
 
     @EventListener
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
         try {
             SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor.wrap(event.getMessage());
+            
             String room = (String) headerAccessor.getSessionAttributes().get("room");
             String sessionId = headerAccessor.getSessionId();
 
             if(sessionId != null && room != null ){
                 var users = service.removeUserFromRoom(sessionId, room);
-                messagingTemplate.convertAndSend("/topic/" + room + "/users", users);
+                messagingTemplate.convertAndSend("/topic/" + room + ".users", users);
             }
             
         } catch (RuntimeException e) {
@@ -103,11 +104,11 @@ public class WSRoomController {
 
     private void countdown(String room) {
         try {
-            messagingTemplate.convertAndSend("/topic/" + room + "/countdown", 3);
+            messagingTemplate.convertAndSend("/topic/" + room + ".countdown", 3);
             Thread.sleep(1000);
-            messagingTemplate.convertAndSend("/topic/" + room + "/countdown", 2);
+            messagingTemplate.convertAndSend("/topic/" + room + ".countdown", 2);
             Thread.sleep(1000);
-            messagingTemplate.convertAndSend("/topic/" + room + "/countdown", 1);
+            messagingTemplate.convertAndSend("/topic/" + room + ".countdown", 1);
             Thread.sleep(1000);
         } catch (InterruptedException ie) {
             Thread.currentThread().interrupt();

@@ -12,17 +12,43 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
 
-  springboot-app:
-    build: .
-    depends_on:
-      - mysql
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
     ports:
-      - '8080:8080'
+      - "5672:5672"     
+      - "15672:15672"
+      - "61613:61613"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/whoiswho
-      SPRING_DATASOURCE_USERNAME: user
-      SPRING_DATASOURCE_PASSWORD: password
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    command: >
+      bash -c "rabbitmq-plugins enable rabbitmq_stomp &&
+               rabbitmq-plugins enable rabbitmq_web_stomp &&
+               rabbitmq-server"
+  # redis:
+  #   image: redis
+  #   hostname: redis
+  #   ports:
+  #     - "6379:6379"
+  #   restart: always
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         cpus: '0.5'
+  #         memory: '0.5GB'
+
+  # springboot-app:
+  #   build: .
+  #   depends_on:
+  #     - mysql
+  #   ports:
+  #     - '8080:8080'
+  #   environment:
+  #     SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/whoiswho
+  #     SPRING_DATASOURCE_USERNAME: user
+  #     SPRING_DATASOURCE_PASSWORD: password
+  #     SPRING_JPA_HIBERNATE_DDL_AUTO: update
 
 volumes:
   mysql-data:

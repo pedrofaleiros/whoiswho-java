@@ -18,17 +18,22 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/topic", "/queue");
+        // registry.enableSimpleBroker("/topic", "/queue");
+
+        registry.enableStompBrokerRelay("/topic", "/queue")
+            // .setRelayHost("rabbitmq")
+            .setRelayHost("localhost")
+            .setRelayPort(61613)
+            .setClientLogin("guest")
+            .setClientPasscode("guest");
+
         registry.setApplicationDestinationPrefixes("/app");
         registry.setUserDestinationPrefix("/user");
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        //TODO: cors
-        registry.addEndpoint("/ws")
-        .setAllowedOriginPatterns("*")
-        .withSockJS();
+        registry.addEndpoint("/ws").setAllowedOriginPatterns("*").withSockJS();
     }
 
     @Override
