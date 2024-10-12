@@ -6,6 +6,7 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
+import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -24,6 +25,7 @@ public class WSAuthInterceptor implements ChannelInterceptor {
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         var headerAccessor = StompHeaderAccessor.wrap(message);
+        var acessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
         if (StompCommand.CONNECT.equals(headerAccessor.getCommand())) {
             String token = headerAccessor.getFirstNativeHeader("Authorization");
@@ -32,12 +34,10 @@ public class WSAuthInterceptor implements ChannelInterceptor {
                 String username = tokenService.validateToken(token);
                 if (username != null) {
                     var user = userRepository.findByUsername(username).orElseThrow(NotAuthException::new);
-
                     var userDetails = new UserDetailsImpl(user);
-
-                    var authorities = userDetails.getAuthorities();
-                    var auth = new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
-                    SecurityContextHolder.getContext().setAuthentication(auth);
+                    var auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    // SecurityContextHolder.getContext().setAuthentication(auth);
+                    acessor.setUser(auth);
                 }
             }
         }
