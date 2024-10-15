@@ -33,6 +33,9 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
             response.getWriter().write("UNAUTHORIZED");
             response.getWriter().flush();
         } catch (RuntimeException e) {
+
+            System.out.println(e.getMessage());
+
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.getWriter().write("BAD REQUEST");
             response.getWriter().flush();

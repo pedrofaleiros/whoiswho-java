@@ -89,33 +89,29 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         System.out.println(ex.getMessage());
 
         if (ex instanceof WsErrorException) {
-            messagingTemplate.convertAndSendToUser(sessionId, "/queue/errors", ex.getMessage(),
-                    createHeaders(sessionId));
+            messagingTemplate.convertAndSendToUser(sessionId, "/queue/errors", ex.getMessage(), createHeaders(sessionId));
         } else if (ex instanceof WsWarningException) {
-            messagingTemplate.convertAndSendToUser(sessionId, "/queue/warnings", ex.getMessage(),
-                    createHeaders(sessionId));
+            messagingTemplate.convertAndSendToUser(sessionId, "/queue/warnings", ex.getMessage(), createHeaders(sessionId));
         } else if (ex instanceof CustomEntityNotFoundException) {
-            messagingTemplate.convertAndSendToUser(sessionId, "/queue/warnings", ex.getMessage(),
-                    createHeaders(sessionId));
+            messagingTemplate.convertAndSendToUser(sessionId, "/queue/warnings", ex.getMessage(), createHeaders(sessionId));
         } else {
             // TODO: temporario
-            messagingTemplate.convertAndSendToUser(sessionId, "/queue/warnings", ex.getMessage(),
-                    createHeaders(sessionId));
+            messagingTemplate.convertAndSendToUser(sessionId, "/queue/warnings", ex.getMessage(), createHeaders(sessionId));
         }
-    }
-
-    private MessageHeaders createHeaders(String sessionId) {
-        SimpMessageHeaderAccessor headerAccessor =
-                SimpMessageHeaderAccessor.create(SimpMessageType.MESSAGE);
-        headerAccessor.setSessionId(sessionId);
-        headerAccessor.setLeaveMutable(true);
-        return headerAccessor.getMessageHeaders();
     }
 
     // TODO: temporario
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<?> handleGlobalException(RuntimeException ex, WebRequest request) {
+        System.out.println(ex.getMessage());
         var response = new ErrorResponse(ex.getMessage());
         return ResponseEntity.badRequest().body(response);
+    }
+
+    private MessageHeaders createHeaders(String sessionId) {
+        SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor.create(SimpMessageType.MESSAGE);
+        headerAccessor.setSessionId(sessionId);
+        headerAccessor.setLeaveMutable(true);
+        return headerAccessor.getMessageHeaders();
     }
 }

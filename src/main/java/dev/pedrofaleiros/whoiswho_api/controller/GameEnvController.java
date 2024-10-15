@@ -40,6 +40,7 @@ public class GameEnvController {
 
     @GetMapping
     public ResponseEntity<List<GameEnvironment>> findUserGameEnvs(Principal principal) {
+        System.out.println("findUserGameEnvs: "+principal.getName());
         return ResponseEntity.ok().body(service.listByUser(principal.getName()));
     }
 

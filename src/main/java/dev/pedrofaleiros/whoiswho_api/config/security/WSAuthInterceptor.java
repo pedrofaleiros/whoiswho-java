@@ -36,7 +36,7 @@ public class WSAuthInterceptor implements ChannelInterceptor {
                     var user = userRepository.findByUsername(username).orElseThrow(NotAuthException::new);
                     var userDetails = new UserDetailsImpl(user);
                     var auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                    // SecurityContextHolder.getContext().setAuthentication(auth);
+                    SecurityContextHolder.getContext().setAuthentication(auth);
                     acessor.setUser(auth);
                 }
             }
