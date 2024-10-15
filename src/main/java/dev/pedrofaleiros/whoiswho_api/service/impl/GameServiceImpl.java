@@ -192,7 +192,7 @@ public class GameServiceImpl implements GameService {
     }
 
     private void validateImpostors(Room room, int usersSize) {
-        if (usersSize < 3 || room.getImpostors() >= usersSize / 2) {
+        if (usersSize < 3 || room.getImpostors() >= (int) Math.ceil(usersSize / 2.0)) {
             throw new WsWarningException("Impostores devem ser minoria");
         }
 
