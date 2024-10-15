@@ -4,6 +4,7 @@ import dev.pedrofaleiros.whoiswho_api.dto.request.UpdateRoomDTO;
 import dev.pedrofaleiros.whoiswho_api.dto.response.UserResponseDTO;
 import dev.pedrofaleiros.whoiswho_api.entity.Game;
 import dev.pedrofaleiros.whoiswho_api.entity.Room;
+import java.security.Principal;
 import java.util.List;
 
 public interface WSRoomService {
@@ -25,4 +26,6 @@ public interface WSRoomService {
     Game getLatestGame(String roomId);
 
     List<Game> listRoomGames(String roomId);
+
+    String extractUsername(Principal principal);
 }

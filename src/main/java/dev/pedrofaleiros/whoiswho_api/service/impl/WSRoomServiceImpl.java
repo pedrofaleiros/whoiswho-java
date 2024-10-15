@@ -1,5 +1,6 @@
 package dev.pedrofaleiros.whoiswho_api.service.impl;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
@@ -81,6 +82,14 @@ public class WSRoomServiceImpl implements WSRoomService {
     @Override
     public Room getRoomData(String roomId) {
         return roomService.findById(roomId);
+    }
+
+    @Override
+    public String extractUsername(Principal principal) {
+        if(principal == null){
+            throw new WsErrorException("Não autenticado");
+        }
+        return principal.getName();
     }
 
 }

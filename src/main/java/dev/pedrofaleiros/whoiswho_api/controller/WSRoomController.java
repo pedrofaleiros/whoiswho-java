@@ -24,9 +24,12 @@ public class WSRoomController {
     private SimpMessagingTemplate messagingTemplate;
 
     @MessageMapping("/join/{room}")
-    public void joinRoom(@DestinationVariable String room, @Payload String username, SimpMessageHeaderAccessor headerAccessor, Principal principal) {
+    public void joinRoom(@DestinationVariable String room, SimpMessageHeaderAccessor headerAccessor, Principal principal) {
         var sessionId = headerAccessor.getSessionId();
+        var username = service.extractUsername(principal);
 
+        System.out.println("joinRoom: "+ username);
+        
         var updatedUsers = service.addUserToRoom(room, username, sessionId);
 
         var roomData = service.getRoomData(room);
@@ -47,7 +50,7 @@ public class WSRoomController {
 
     @MessageMapping("/update/{room}")
     public void updateRoom(@DestinationVariable String room, @Payload UpdateRoomDTO data, Principal principal) {
-        String username = principal.getName();
+        var username = service.extractUsername(principal);
 
         data.setUsername(username);
         data.setRoom(room);
@@ -58,8 +61,7 @@ public class WSRoomController {
     
     @MessageMapping("/startGame/{room}")
     public void startGame(@DestinationVariable String room, Principal principal) {
-        String username = principal.getName();
-        if(username == null) throw new WsErrorException("Nenhum usuario");
+        var username = service.extractUsername(principal);
         
         var game = service.startGame(room, username);
         var updatedRoom = service.getRoomData(room);
@@ -74,8 +76,7 @@ public class WSRoomController {
     
     @MessageMapping("/finishGame/{room}")
     public void finishGame(@DestinationVariable String room, Principal principal) {
-        String username = principal.getName();
-        if(username == null) throw new RuntimeException("Erro");
+        var username = service.extractUsername(principal);
         
         var updatedRoom = service.finishGame(room, username);
         var games = service.listRoomGames(room);
