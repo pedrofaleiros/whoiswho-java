@@ -32,15 +32,6 @@ public class Room {
     @ManyToOne(optional = false)
     private UserEntity owner;
 
-    // @JsonIgnore
-    // @ManyToMany
-    // @JoinTable(
-    //     name = "room_users",
-    //     joinColumns = @JoinColumn(name = "room_id", referencedColumnName = "id"),
-    //     inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id")
-    // )
-    // private Set<UserEntity> users;
-
     @JsonIgnore
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RoomUser> roomUsers;

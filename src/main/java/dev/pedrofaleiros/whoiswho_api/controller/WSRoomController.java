@@ -28,8 +28,6 @@ public class WSRoomController {
         var sessionId = headerAccessor.getSessionId();
         var username = service.extractUsername(principal);
 
-        System.out.println("joinRoom: "+ username);
-        
         var updatedUsers = service.addUserToRoom(room, username, sessionId);
 
         var roomData = service.getRoomData(room);

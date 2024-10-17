@@ -43,10 +43,6 @@ public class UserEntity {
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
     private List<Room> rooms;
 
-    // @JsonIgnore
-    // @ManyToMany(mappedBy = "users")
-    // private Set<Room> roomsPlaying;
-
     @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RoomUser> roomUsers;
