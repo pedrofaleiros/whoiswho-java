@@ -11,24 +11,37 @@ services:
       - '3307:3306'
     volumes:
       - mysql-data:/var/lib/mysql
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: '0.5GB'
 
   springboot-app1:
     build: .
     depends_on:
       - mysql
+      - rabbitmq
     environment:
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      
+      RABBITMQ_HOST: ${RABBITMQ_HOST}
+      RABBITMQ_PORT: ${RABBITMQ_PORT}
+      RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+
+      API_SECURITY_TOKEN_SECRET: ${API_SECURITY_TOKEN_SECRET}
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: '0.5GB'
 
   springboot-app2:
-    build: .
-    depends_on:
-      - mysql
-    environment:
-      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
-      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
-      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+    extends:
+      service: springboot-app1
 
   nginx:
     image: nginx:latest
@@ -39,32 +52,32 @@ services:
       - '8080:80'
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: '0.5GB'
 
   rabbitmq:
     image: rabbitmq:3-management
-    container_name: rabbitmq
+    hostname: rabbitmq
     ports:
-      - "5672:5672"     
-      - "15672:15672"
+      # - "5672:5672"     
+      # - "15672:15672"
       - "61613:61613"
     environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    restart: always
     command: >
       bash -c "rabbitmq-plugins enable rabbitmq_stomp &&
                rabbitmq-plugins enable rabbitmq_web_stomp &&
                rabbitmq-server"
-  # redis:
-  #   image: redis
-  #   hostname: redis
-  #   ports:
-  #     - "6379:6379"
-  #   restart: always
-  #   deploy:
-  #     resources:
-  #       limits:
-  #         cpus: '0.5'
-  #         memory: '0.5GB'
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: '0.5GB'
 
 volumes:
   mysql-data:
