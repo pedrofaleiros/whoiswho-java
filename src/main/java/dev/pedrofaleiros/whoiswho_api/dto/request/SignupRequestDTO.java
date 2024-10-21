@@ -12,7 +12,7 @@ public class SignupRequestDTO {
     String username;
 
     @NotBlank(message = "Senha inválida")
-    @Size(min = 6, message = "A senha deve conter no mínimo 6 caracteres")
+    @Size(min = 5, message = "A senha deve conter no mínimo 5 caracteres")
     String password;
 
 }

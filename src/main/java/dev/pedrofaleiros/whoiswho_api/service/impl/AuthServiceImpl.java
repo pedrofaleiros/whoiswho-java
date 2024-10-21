@@ -1,7 +1,6 @@
 package dev.pedrofaleiros.whoiswho_api.service.impl;
 
 import java.util.Optional;
-
 import dev.pedrofaleiros.whoiswho_api.dto.request.UpdateUsernameDto;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -75,6 +74,29 @@ public class AuthServiceImpl implements AuthService {
         user.setUsername(data.getUsername());
         var savedUser = userRepository.save(user);
         var token = tokenService.generateToken(savedUser);
+        return AuthResponseDTO.builder()
+                .id(savedUser.getId())
+                .username(savedUser.getUsername())
+                .token(token).build();
+    }
+
+    @Override
+    public AuthResponseDTO loginGuest(String username) {
+        //TODO: gerar uma senha aleatoria? (para nao ser possivel logar novamente)
+        if(userRepository.existsByUsername(username)){
+            throw new UsernameAlreadyExistsException();
+        }
+        
+        UserEntity newUser = UserEntity.builder()
+                            .username(username)
+                            .password(passwordEncoder.encode("guest"))
+                            .role("USER")
+                            .isGuest(true)
+                            .build();
+
+        var savedUser = userRepository.save(newUser);
+        var token = tokenService.generateToken(savedUser);
+
         return AuthResponseDTO.builder()
                 .id(savedUser.getId())
                 .username(savedUser.getUsername())

@@ -12,7 +12,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import dev.pedrofaleiros.whoiswho_api.dto.request.UpdateRoomDTO;
-import dev.pedrofaleiros.whoiswho_api.exception.websocket.WsErrorException;
 import dev.pedrofaleiros.whoiswho_api.service.WSRoomService;
 import lombok.AllArgsConstructor;
 

@@ -8,6 +8,6 @@ import dev.pedrofaleiros.whoiswho_api.dto.response.AuthResponseDTO;
 public interface AuthService {
     AuthResponseDTO signup(SignupRequestDTO data);
     AuthResponseDTO login(LoginRequestDTO data);
-
+    AuthResponseDTO loginGuest(String username);
     AuthResponseDTO updateUsername(UpdateUsernameDto data);
 }

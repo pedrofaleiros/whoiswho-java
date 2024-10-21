@@ -95,17 +95,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         } else if (ex instanceof CustomEntityNotFoundException) {
             messagingTemplate.convertAndSendToUser(sessionId, "/queue/warnings", ex.getMessage(), createHeaders(sessionId));
         } else {
-            // TODO: temporario
-            messagingTemplate.convertAndSendToUser(sessionId, "/queue/warnings", ex.getMessage(), createHeaders(sessionId));
+            System.out.println(ex.getMessage());
         }
     }
 
-    // TODO: temporario
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<?> handleGlobalException(RuntimeException ex, WebRequest request) {
         System.out.println(ex.getMessage());
-        var response = new ErrorResponse(ex.getMessage());
-        return ResponseEntity.badRequest().body(response);
+        // var response = new ErrorResponse(ex.getMessage());
+        // return ResponseEntity.badRequest().body(response);
+        return ResponseEntity.internalServerError().body("Erro inesperado");
     }
 
     private MessageHeaders createHeaders(String sessionId) {

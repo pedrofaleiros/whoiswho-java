@@ -12,7 +12,6 @@ public class LoginRequestDTO {
 
     @NotBlank(message = "Senha inválida")
     @Size(max = 32, message = "Senha pode conter no máximo 32 caracteres")
-    @Size(min = 6, message = "Senha deve conter no mínimo 6 caracteres")
     String password;
 
 }

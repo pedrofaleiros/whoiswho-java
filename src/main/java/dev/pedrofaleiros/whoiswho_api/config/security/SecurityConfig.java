@@ -39,6 +39,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/login").permitAll()
                         .requestMatchers("/auth/signup").permitAll()
+                        .requestMatchers("/auth/guest").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/h2/**").permitAll()
                         .requestMatchers("/ws/**").permitAll()
@@ -67,7 +68,9 @@ public class SecurityConfig {
 
         config.setAllowCredentials(true);
         //TODO: cors 
-        config.setAllowedOriginPatterns(Arrays.asList("*"));
+        config.setAllowedOriginPatterns(Arrays.asList(
+            "*"
+        ));
         // config.addAllowedOrigin("http://localhost:4200");
 
         config.setAllowedHeaders(Arrays.asList(

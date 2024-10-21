@@ -11,6 +11,7 @@ services:
       - '3307:3306'
     volumes:
       - mysql-data:/var/lib/mysql
+    restart: always
     deploy:
       resources:
         limits:
@@ -33,6 +34,7 @@ services:
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
 
       API_SECURITY_TOKEN_SECRET: ${API_SECURITY_TOKEN_SECRET}
+      API_SECURITY_TOKEN_ISSUER: ${API_SECURITY_TOKEN_ISSUER}
     deploy:
       resources:
         limits:

@@ -9,12 +9,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import dev.pedrofaleiros.whoiswho_api.entity.GameEnvironment;
 import dev.pedrofaleiros.whoiswho_api.entity.PlayerRole;
-import dev.pedrofaleiros.whoiswho_api.entity.Room;
-import dev.pedrofaleiros.whoiswho_api.entity.RoomStatus;
 import dev.pedrofaleiros.whoiswho_api.entity.UserEntity;
 import dev.pedrofaleiros.whoiswho_api.repository.GameEnvRepository;
 import dev.pedrofaleiros.whoiswho_api.repository.PlayerRoleRepository;
-import dev.pedrofaleiros.whoiswho_api.repository.RoomRepository;
 import dev.pedrofaleiros.whoiswho_api.repository.UserRepository;
 import lombok.AllArgsConstructor;
 
@@ -26,7 +23,6 @@ public class WhoiswhoApiApplication implements CommandLineRunner {
   private UserRepository userRepository;
   private GameEnvRepository gameEnvRepository;
   private PlayerRoleRepository playerRoleRepository;
-  private RoomRepository roomRepository;
 
   public static void main(String[] args) {
     SpringApplication.run(WhoiswhoApiApplication.class, args);
@@ -41,16 +37,8 @@ public class WhoiswhoApiApplication implements CommandLineRunner {
         return;
     }
 
-    var user1 = userRepository.save(UserEntity.builder().username("pedro")
+    var user1 = userRepository.save(UserEntity.builder().username("pedrofaleiros")
         .password(passwordEncoder.encode("pedro123")).role("ADMIN").build());
-
-    userRepository.save(UserEntity.builder().username("dani")
-        .password(passwordEncoder.encode("dani123")).role("USER").build());
-    userRepository.save(UserEntity.builder().username("pedrofaleiros")
-        .password(passwordEncoder.encode("pedro123")).role("USER").build());
-
-    roomRepository.save(new Room("1234", user1, null, RoomStatus.IDLE, null, 1, true, true));
-    roomRepository.save(new Room("1111", user1, null, RoomStatus.IDLE, null, 3, true, false));
 
     var gameEnv1 =
         gameEnvRepository.save(new GameEnvironment(null, "Aeroporto", null, null, user1, null));

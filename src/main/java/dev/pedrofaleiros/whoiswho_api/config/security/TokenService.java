@@ -14,8 +14,9 @@ public class TokenService {
 
     @Value("${api.security.token.secret}")
     private String secret;
-
-    private String ISSUER = "who-is-who-api";
+    
+    @Value("${api.security.token.issuer}")
+    private String ISSUER;
 
     public String generateToken(UserEntity user) {
         Algorithm algorithm = Algorithm.HMAC256(secret);
@@ -33,8 +34,6 @@ public class TokenService {
     }
 
     private Instant generateExpirationDate() {
-        //TODO: validade token
-        // return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
         return LocalDateTime.now().plusDays(7).toInstant(ZoneOffset.of("-03:00"));
     }
 }

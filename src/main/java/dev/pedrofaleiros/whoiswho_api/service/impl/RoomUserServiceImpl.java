@@ -46,9 +46,6 @@ public class RoomUserServiceImpl implements RoomUserService {
     @Override
     public void remove(String sessionId) {
         var findRoomUser = findBySessionId(sessionId);
-
-        //TODO: verificar se session é da sala
-
         repository.delete(findRoomUser);
     }
 

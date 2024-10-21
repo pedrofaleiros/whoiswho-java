@@ -47,6 +47,10 @@ public class UserEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RoomUser> roomUsers;
 
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean isGuest = false;
+
     @Override
     public boolean equals(Object o) {
         if (this == o)
