@@ -51,6 +51,11 @@ public class AuthServiceImpl implements AuthService {
         if (user.isEmpty()) {
             throw new LoginException();
         }
+        
+        if(user.get().isGuest()){
+            throw new LoginException("Não é possivel fazer login com esse usuario");
+        }
+
         var passwordMatches = passwordEncoder.matches(data.getPassword(), user.get().getPassword());
         if (!passwordMatches) {
             throw new LoginException();
@@ -70,6 +75,10 @@ public class AuthServiceImpl implements AuthService {
             throw new UsernameAlreadyExistsException();
         }
 
+        if(findUser.get().isGuest()){
+            throw new LoginException("Não é possivel alterar os dados desse usuario");
+        }
+
         UserEntity user = userRepository.findByUsername(data.getOldUsername()).orElseThrow(()->new LoginException());
         user.setUsername(data.getUsername());
         var savedUser = userRepository.save(user);
@@ -82,7 +91,6 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponseDTO loginGuest(String username) {
-        //TODO: gerar uma senha aleatoria? (para nao ser possivel logar novamente)
         if(userRepository.existsByUsername(username)){
             throw new UsernameAlreadyExistsException();
         }

@@ -26,6 +26,11 @@ public class WSRoomServiceImpl implements WSRoomService {
     @Override
     public List<UserResponseDTO> addUserToRoom(String roomId, String username, String sessionId) {
         try {
+            var users = getRoomUsers(roomId);
+            if(users.size() >= 10){
+                throw new RuntimeException("A sala esta lotada.");
+            }
+
             roomUserService.create(username, roomId, sessionId);
             return getRoomUsers(roomId);
         } catch (RuntimeException e) {

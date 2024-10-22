@@ -4,4 +4,10 @@ public class LoginException extends RuntimeException {
     public LoginException() {
         super("Login e/ou senha incorretos.");
     }
+    
+    public LoginException(String message) {
+        super(message);
+    }
+
+
 }
