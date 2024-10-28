@@ -8,6 +8,8 @@ import dev.pedrofaleiros.whoiswho_api.dto.request.UpdateRoomDTO;
 import dev.pedrofaleiros.whoiswho_api.dto.response.UserResponseDTO;
 import dev.pedrofaleiros.whoiswho_api.entity.Game;
 import dev.pedrofaleiros.whoiswho_api.entity.Room;
+import dev.pedrofaleiros.whoiswho_api.exception.bad_request.CustomBadRequestException;
+import dev.pedrofaleiros.whoiswho_api.exception.not_found.CustomEntityNotFoundException;
 import dev.pedrofaleiros.whoiswho_api.exception.websocket.WsErrorException;
 import dev.pedrofaleiros.whoiswho_api.service.GameService;
 import dev.pedrofaleiros.whoiswho_api.service.RoomService;
@@ -33,7 +35,9 @@ public class WSRoomServiceImpl implements WSRoomService {
 
             roomUserService.create(username, roomId, sessionId);
             return getRoomUsers(roomId);
-        } catch (RuntimeException e) {
+        } catch (CustomEntityNotFoundException e) {
+            throw new WsErrorException(e.getMessage());
+        } catch (CustomBadRequestException e) {
             throw new WsErrorException(e.getMessage());
         }
     }

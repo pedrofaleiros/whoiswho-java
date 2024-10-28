@@ -61,9 +61,8 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public Room updateRoom(UpdateRoomDTO data) {
         var room = findById(data.getRoom());
-        var user = userService.findByUsername(data.getUsername());
 
-        if (!room.getOwner().getId().equals(user.getId())) {
+        if (!room.getOwner().getUsername().equals(data.getUsername())) {
             throw new WsWarningException("Apenas o ADM pode atualizar os dados da sala");
         }
 

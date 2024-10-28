@@ -86,13 +86,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             SimpMessageHeaderAccessor headerAccessor) {
         var sessionId = headerAccessor.getSessionId();
 
-        System.out.println(ex.getMessage());
-
         if (ex instanceof WsErrorException) {
             messagingTemplate.convertAndSendToUser(sessionId, "/queue/errors", ex.getMessage(), createHeaders(sessionId));
         } else if (ex instanceof WsWarningException) {
             messagingTemplate.convertAndSendToUser(sessionId, "/queue/warnings", ex.getMessage(), createHeaders(sessionId));
         } else if (ex instanceof CustomEntityNotFoundException) {
+            messagingTemplate.convertAndSendToUser(sessionId, "/queue/warnings", ex.getMessage(), createHeaders(sessionId));
+        } else if (ex instanceof CustomBadRequestException) {
             messagingTemplate.convertAndSendToUser(sessionId, "/queue/warnings", ex.getMessage(), createHeaders(sessionId));
         } else {
             System.out.println(ex.getMessage());

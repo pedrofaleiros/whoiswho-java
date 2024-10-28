@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import dev.pedrofaleiros.whoiswho_api.entity.RoomUser;
 import dev.pedrofaleiros.whoiswho_api.entity.UserEntity;
+import dev.pedrofaleiros.whoiswho_api.exception.bad_request.CustomBadRequestException;
 import dev.pedrofaleiros.whoiswho_api.exception.not_found.CustomEntityNotFoundException;
 import dev.pedrofaleiros.whoiswho_api.repository.RoomUserRepository;
 import dev.pedrofaleiros.whoiswho_api.service.RoomService;
@@ -22,13 +23,12 @@ public class RoomUserServiceImpl implements RoomUserService {
     private UserService userService;
     private RoomService roomService;
 
-    //TODO: custom exception
     @Override
     public RoomUser create(String username, String roomId, String sessionId) {
         var findRoomUser = repository.findById(sessionId);
         
         if (findRoomUser.isPresent()) {
-            throw new RuntimeException("Ja existe uma sessao com esse ID");
+            throw new CustomBadRequestException("Ja existe uma sessao com esse ID");
         }
 
         var user = userService.findByUsername(username);
@@ -49,7 +49,6 @@ public class RoomUserServiceImpl implements RoomUserService {
         repository.delete(findRoomUser);
     }
 
-    //TODO: custom exception
     @Override
     public RoomUser findBySessionId(String sessionId) {
         return repository.findById(sessionId).orElseThrow(() -> new CustomEntityNotFoundException("Sessao nao encontrada"));

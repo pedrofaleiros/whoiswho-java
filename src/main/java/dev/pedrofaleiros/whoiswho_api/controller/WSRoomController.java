@@ -27,18 +27,30 @@ public class WSRoomController {
         var sessionId = headerAccessor.getSessionId();
         var username = service.extractUsername(principal);
 
+        // long t1;
+        // t1 = System.nanoTime();
         var updatedUsers = service.addUserToRoom(room, username, sessionId);
-
+        // System.out.println("Add User: " + ( (System.nanoTime() - t1) /1_000_000.0));
+        
+        // t1 = System.nanoTime();
         var roomData = service.getRoomData(room);
+        // System.out.println("Room Data: " + ( (System.nanoTime() - t1) /1_000_000.0));
         
         headerAccessor.getSessionAttributes().put("room", room);
         
+        // t1 = System.nanoTime();
         var game = service.getLatestGame(room);
+        // System.out.println("Latest Game: " + ( (System.nanoTime() - t1) /1_000_000.0));
         if(game != null){
             messagingTemplate.convertAndSendToUser(sessionId, "queue/gameData", game, createHeaders(sessionId));
         }
         
+        // t1 = System.nanoTime();
         var games = service.listRoomGames(room);
+        // System.out.println("List Games: " + ( (System.nanoTime() - t1) /1_000_000.0));
+        
+        // System.out.println("Concluido!");
+
         messagingTemplate.convertAndSendToUser(sessionId, "queue/gamesList", games, createHeaders(sessionId));
 
         messagingTemplate.convertAndSendToUser(sessionId, "queue/roomData", roomData, createHeaders(sessionId));

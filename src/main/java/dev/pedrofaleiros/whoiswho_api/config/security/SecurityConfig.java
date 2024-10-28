@@ -68,10 +68,8 @@ public class SecurityConfig {
 
         config.setAllowCredentials(true);
         //TODO: cors 
-        config.setAllowedOriginPatterns(Arrays.asList(
-            "*"
-        ));
-        // config.addAllowedOrigin("http://localhost:4200");
+        config.setAllowedOriginPatterns(Arrays.asList("*"));
+        // config.addAllowedOrigin("http://192.168.0.129:4200");
 
         config.setAllowedHeaders(Arrays.asList(
                 HttpHeaders.AUTHORIZATION, 
