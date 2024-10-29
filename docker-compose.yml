@@ -1,22 +1,22 @@
 services:
-  # mysql:
-  #   image: mysql:latest
-  #   hostname: mysql
-  #   environment:
-  #     - MYSQL_DATABASE=${MYSQL_DATABASE}
-  #     - MYSQL_USER=${MYSQL_USER}
-  #     - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-  #     - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-  #   ports:
-  #     - '3307:3306'
-  #   volumes:
-  #     - mysql-data:/var/lib/mysql
-  #   restart: always
-  #   deploy:
-  #     resources:
-  #       limits:
-  #         cpus: '0.5'
-  #         memory: '0.5GB'
+  mysql:
+    image: mysql:latest
+    hostname: mysql
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    ports:
+      - '3307:3306'
+    volumes:
+      - mysql-data:/var/lib/mysql
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: '0.5GB'
 
   springboot-app1:
     build: .
@@ -60,26 +60,26 @@ services:
           cpus: '0.25'
           memory: '0.5GB'
 
-  # rabbitmq:
-  #   image: rabbitmq:3-management
-  #   hostname: rabbitmq
-  #   ports:
-  #     # - "5672:5672"     
-  #     # - "15672:15672"
-  #     - "61613:61613"
-  #   environment:
-  #     RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
-  #     RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
-  #   restart: always
-  #   command: >
-  #     bash -c "rabbitmq-plugins enable rabbitmq_stomp &&
-  #              rabbitmq-plugins enable rabbitmq_web_stomp &&
-  #              rabbitmq-server"
-  #   deploy:
-  #     resources:
-  #       limits:
-  #         cpus: '0.25'
-  #         memory: '0.5GB'
+  rabbitmq:
+    image: rabbitmq:3-management
+    hostname: rabbitmq
+    ports:
+      # - "5672:5672"     
+      # - "15672:15672"
+      - "61613:61613"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    restart: always
+    command: >
+      bash -c "rabbitmq-plugins enable rabbitmq_stomp &&
+               rabbitmq-plugins enable rabbitmq_web_stomp &&
+               rabbitmq-server"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: '0.5GB'
 
 volumes:
   mysql-data:
