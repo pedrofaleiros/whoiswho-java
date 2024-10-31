@@ -14,30 +14,30 @@ import dev.pedrofaleiros.whoiswho_api.config.security.WSAuthInterceptor;
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-    @Value("${spring.rabbitmq.host}")
-    private String rabbitMQHost;
+    // @Value("${spring.rabbitmq.host}")
+    // private String rabbitMQHost;
     
-    @Value("${spring.rabbitmq.port}")
-    private int rabbitMQPort;
+    // @Value("${spring.rabbitmq.port}")
+    // private int rabbitMQPort;
     
-    @Value("${spring.rabbitmq.username}")
-    private String rabbitMQUser;
+    // @Value("${spring.rabbitmq.username}")
+    // private String rabbitMQUser;
     
-    @Value("${spring.rabbitmq.password}")
-    private String rabbitMQPassword;
+    // @Value("${spring.rabbitmq.password}")
+    // private String rabbitMQPassword;
 
     @Autowired
     private WSAuthInterceptor wsAuthInterceptor;
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        // registry.enableSimpleBroker("/topic", "/queue");
+        registry.enableSimpleBroker("/topic", "/queue");
 
-        registry.enableStompBrokerRelay("/topic", "/queue")
-            .setRelayHost(rabbitMQHost)
-            .setRelayPort(rabbitMQPort)
-            .setClientLogin(rabbitMQUser)
-            .setClientPasscode(rabbitMQPassword);
+        // registry.enableStompBrokerRelay("/topic", "/queue")
+        //     .setRelayHost(rabbitMQHost)
+        //     .setRelayPort(rabbitMQPort)
+        //     .setClientLogin(rabbitMQUser)
+        //     .setClientPasscode(rabbitMQPassword);
 
         registry.setApplicationDestinationPrefixes("/app");
         registry.setUserDestinationPrefix("/user");
