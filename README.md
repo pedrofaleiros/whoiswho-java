@@ -10,6 +10,8 @@ Em uma partida, um jogador cria uma sala onde os demais se reúnem para jogar. N
 
 Durante as rodadas, todos compartilham pistas sobre suas profissões e o local, tentando identificar os impostores sem revelar demais sobre si mesmos. Ao final de cada rodada, os jogadores podem optar por votar para eliminar um suspeito ou seguir sem eliminações.
 
+Para que um jogador seja eliminado, é necessário que ele receba a maioria dos votos; se houver empate, ninguém é eliminado.
+
 O jogo termina quando:
 
 - Todos os impostores são descobertos e eliminados;
