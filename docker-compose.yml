@@ -28,29 +28,22 @@ services:
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-      
       API_SECURITY_TOKEN_SECRET: ${API_SECURITY_TOKEN_SECRET}
       API_SECURITY_TOKEN_ISSUER: ${API_SECURITY_TOKEN_ISSUER}
-
-      # RABBITMQ_HOST: ${RABBITMQ_HOST}
-      # RABBITMQ_PORT: ${RABBITMQ_PORT}
-      # RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
-      # RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
-
     deploy:
       resources:
         limits:
           cpus: '0.5'
           memory: '0.5GB'
 
-  angular-app:
-    build: ../whoiswho-app/
-    ports:
-      - 4200:4200
-    depends_on:
-      - springboot-app1
-    environment:
-      API_URL: http://192.168.0.129:8080
+  # angular-app:
+  #   build: ../whoiswho-app/
+  #   ports:
+  #     - 4200:4200
+  #   depends_on:
+  #     - springboot-app1
+  #   environment:
+  #     API_URL: http://192.168.0.129:8080
     # deploy:
     #   resources:
     #     limits:

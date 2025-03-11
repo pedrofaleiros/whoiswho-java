@@ -34,6 +34,6 @@ public class TokenService {
     }
 
     private Instant generateExpirationDate() {
-        return LocalDateTime.now().plusDays(7).toInstant(ZoneOffset.of("-03:00"));
+        return LocalDateTime.now(ZoneOffset.UTC).plusDays(7).toInstant(ZoneOffset.of("-03:00"));
     }
 }

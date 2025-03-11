@@ -1,6 +1,7 @@
 package dev.pedrofaleiros.whoiswho_api.entity;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
@@ -50,8 +51,10 @@ public class Game {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    //TODO:
     @PrePersist
     protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now(ZoneOffset.UTC);
     }
+
 }
