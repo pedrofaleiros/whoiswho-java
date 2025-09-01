@@ -24,31 +24,35 @@ services:
       # - rabbitmq
     ports:
       - 8080:8080
-    environment:
-      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
-      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
-      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-      API_SECURITY_TOKEN_SECRET: ${API_SECURITY_TOKEN_SECRET}
-      API_SECURITY_TOKEN_ISSUER: ${API_SECURITY_TOKEN_ISSUER}
+    env_file:
+      - ./.env
     deploy:
       resources:
         limits:
           cpus: '0.5'
           memory: '0.5GB'
 
+  backend-ws:
+    build: ../whoiswho-ws/
+    ports:
+      - 3000:3000
+    depends_on:
+      - postgres
+    env_file:
+      - ../whoiswho-ws/.env
+  
   # angular-app:
   #   build: ../whoiswho-app/
   #   ports:
   #     - 4200:4200
   #   depends_on:
   #     - springboot-app1
-  #   environment:
-  #     API_URL: http://192.168.0.129:8080
-    # deploy:
-    #   resources:
-    #     limits:
-    #       cpus: '0.5'
-    #       memory: '0.5GB'
+  #     - backend-ws
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         cpus: '0.5'
+  #         memory: '0.5GB'
 
   # springboot-app2:
   #   extends:
