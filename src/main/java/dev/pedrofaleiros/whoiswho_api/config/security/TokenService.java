@@ -18,6 +18,12 @@ public class TokenService {
     @Value("${api.security.token.issuer}")
     private String ISSUER;
 
+    @Value("${github.client.id}")
+    private String githubClientId;
+
+    @Value("${github.client.secret}")
+    private String githubClientSecret;
+
     public String generateToken(UserEntity user) {
         Algorithm algorithm = Algorithm.HMAC256(secret);
         String token = JWT.create().withIssuer(ISSUER).withSubject(user.getUsername())
@@ -35,5 +41,13 @@ public class TokenService {
 
     private Instant generateExpirationDate() {
         return LocalDateTime.now(ZoneOffset.UTC).plusDays(7).toInstant(ZoneOffset.of("-03:00"));
+    }
+
+    public String getGithubClientId() {
+        return githubClientId;
+    }
+
+    public String getGithubClientSecret() {
+        return githubClientSecret;
     }
 }

@@ -10,4 +10,5 @@ public interface AuthService {
     AuthResponseDTO login(LoginRequestDTO data);
     AuthResponseDTO loginGuest(String username);
     AuthResponseDTO updateUsername(UpdateUsernameDto data);
+    AuthResponseDTO loginWithGithub(String code);
 }

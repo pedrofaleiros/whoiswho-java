@@ -14,7 +14,6 @@ import dev.pedrofaleiros.whoiswho_api.entity.PlayerRole;
 import dev.pedrofaleiros.whoiswho_api.repository.GameEnvRepository;
 import dev.pedrofaleiros.whoiswho_api.repository.PlayerRoleRepository;
 import dev.pedrofaleiros.whoiswho_api.repository.RoomRepository;
-import dev.pedrofaleiros.whoiswho_api.repository.UserRepository;
 import lombok.AllArgsConstructor;
 
 @Component
@@ -22,7 +21,6 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class SeedOnStartRunner implements CommandLineRunner {
 
-    private UserRepository userRepository;
     private GameEnvRepository gameEnvRepository;
     private PlayerRoleRepository playerRoleRepository;
     private RoomRepository roomRepository;
@@ -34,10 +32,9 @@ public class SeedOnStartRunner implements CommandLineRunner {
         System.out.println("--------------------------");
         deleteRooms();
 
-        var aux = userRepository.findAll();
-        if (!aux.isEmpty())
-        return;
-        includeGameEnvs();
+        if(gameEnvRepository.count() == 0){
+            includeGameEnvs();
+        }
     }
 
     private void deleteRooms() {

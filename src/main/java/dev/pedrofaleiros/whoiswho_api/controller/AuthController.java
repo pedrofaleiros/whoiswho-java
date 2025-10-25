@@ -4,6 +4,7 @@ import dev.pedrofaleiros.whoiswho_api.dto.request.UpdateUsernameDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import dev.pedrofaleiros.whoiswho_api.dto.request.GithubCodeDTO;
 import dev.pedrofaleiros.whoiswho_api.dto.request.LoginGuestDTO;
 import dev.pedrofaleiros.whoiswho_api.dto.request.LoginRequestDTO;
 import dev.pedrofaleiros.whoiswho_api.dto.request.SignupRequestDTO;
@@ -42,6 +43,12 @@ public class AuthController {
     @PostMapping("guest")
     public ResponseEntity<AuthResponseDTO> loginGuest(@Valid @RequestBody LoginGuestDTO data) {
         var response = authService.loginGuest(data.getUsername());
+        return ResponseEntity.ok().body(response);
+    }
+
+    @PostMapping("github")
+    public ResponseEntity<AuthResponseDTO> loginWithGithub(@Valid @RequestBody GithubCodeDTO data) {
+        var response = authService.loginWithGithub(data.getCode());
         return ResponseEntity.ok().body(response);
     }
 }

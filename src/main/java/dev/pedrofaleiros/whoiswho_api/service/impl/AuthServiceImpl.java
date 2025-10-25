@@ -14,6 +14,10 @@ import dev.pedrofaleiros.whoiswho_api.exception.bad_request.UsernameAlreadyExist
 import dev.pedrofaleiros.whoiswho_api.repository.UserRepository;
 import dev.pedrofaleiros.whoiswho_api.service.AuthService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.*;
+import org.springframework.web.client.RestTemplate;
+import java.util.Collections;
+import java.util.Map;
 
 @Service
 @AllArgsConstructor
@@ -56,7 +60,7 @@ public class AuthServiceImpl implements AuthService {
             throw new LoginException("Não é possivel fazer login com esse usuario");
         }
 
-        var passwordMatches = passwordEncoder.matches(data.getPassword(), user.get().getPassword());
+        boolean passwordMatches = passwordEncoder.matches(data.getPassword(), user.get().getPassword());
         if (!passwordMatches) {
             throw new LoginException();
         }
@@ -109,5 +113,112 @@ public class AuthServiceImpl implements AuthService {
                 .id(savedUser.getId())
                 .username(savedUser.getUsername())
                 .token(token).build();
+    }
+
+    @Override
+    public AuthResponseDTO loginWithGithub(String code) {
+        try {
+            System.out.println("[GitHub OAuth] loginWithGithub started");
+            String maskedCode = code == null ? "null" : (code.length() <= 6 ? code : code.substring(0, 6) + "...");
+            System.out.println("[GitHub OAuth] Received code: " + maskedCode);
+            System.out.println("[GitHub OAuth] Using clientId: " + tokenService.getGithubClientId());
+
+            RestTemplate rest = new RestTemplate();
+
+            HttpHeaders tokenHeaders = new HttpHeaders();
+            tokenHeaders.setContentType(MediaType.APPLICATION_JSON);
+            tokenHeaders.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+
+            Map<String, String> tokenBody = Map.of(
+                "client_id", tokenService.getGithubClientId(),
+                "client_secret", tokenService.getGithubClientSecret(),
+                "code", code
+            );
+
+            HttpEntity<Map<String, String>> tokenRequest = new HttpEntity<>(tokenBody, tokenHeaders);
+            System.out.println("[GitHub OAuth] Exchanging code for access_token...");
+            ResponseEntity<Map> tokenResponse = rest.postForEntity(
+                "https://github.com/login/oauth/access_token",
+                tokenRequest,
+                Map.class
+            );
+
+            System.out.println("[GitHub OAuth] Token response status: " + tokenResponse.getStatusCode());
+            if (tokenResponse.getBody() != null) {
+                System.out.println("[GitHub OAuth] Token response keys: " + tokenResponse.getBody().keySet());
+                Object err = tokenResponse.getBody().get("error");
+                if (err != null) {
+                    System.out.println("[GitHub OAuth] Token error: " + err + ", desc=" + tokenResponse.getBody().get("error_description"));
+                }
+            }
+
+            if (!tokenResponse.getStatusCode().is2xxSuccessful() || tokenResponse.getBody() == null) {
+                throw new LoginException("Falha ao obter token do GitHub");
+            }
+
+            Object accessTokenObj = tokenResponse.getBody().get("access_token");
+            if (accessTokenObj == null) {
+                throw new LoginException("Token do GitHub não retornado");
+            }
+            String accessToken = accessTokenObj.toString();
+            String maskedToken = accessToken.length() <= 8 ? "***" : accessToken.substring(0, 4) + "..." + accessToken.substring(accessToken.length() - 4);
+            System.out.println("[GitHub OAuth] Received access_token: " + maskedToken);
+
+            HttpHeaders userHeaders = new HttpHeaders();
+            userHeaders.setBearerAuth(accessToken);
+            userHeaders.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+
+            HttpEntity<Void> userRequest = new HttpEntity<>(userHeaders);
+            System.out.println("[GitHub OAuth] Fetching /user from GitHub API...");
+            ResponseEntity<Map> userResponse = rest.exchange(
+                "https://api.github.com/user",
+                HttpMethod.GET,
+                userRequest,
+                Map.class
+            );
+
+            System.out.println("[GitHub OAuth] User response status: " + userResponse.getStatusCode());
+            if (!userResponse.getStatusCode().is2xxSuccessful() || userResponse.getBody() == null) {
+                throw new LoginException("Falha ao obter usuário do GitHub");
+            }
+
+            String githubLogin = String.valueOf(userResponse.getBody().get("login"));
+            if (githubLogin == null || githubLogin.equals("null") || githubLogin.isBlank()) {
+                throw new LoginException("Login do GitHub inválido");
+            }
+            System.out.println("[GitHub OAuth] GitHub login: " + githubLogin);
+
+            String username = "github-" + githubLogin;
+            System.out.println("[GitHub OAuth] Local username: " + username);
+
+            var existing = userRepository.findByUsername(username);
+            UserEntity user = existing.orElseGet(() -> {
+                System.out.println("[GitHub OAuth] Creating new local user record...");
+                UserEntity u = UserEntity.builder()
+                    .username(username)
+                    .password(passwordEncoder.encode("github_oauth"))
+                    .role("USER")
+                    .isGuest(false)
+                    .build();
+                return userRepository.save(u);
+            });
+            if (existing.isPresent()) {
+                System.out.println("[GitHub OAuth] Using existing local user record");
+            }
+
+            var jwt = tokenService.generateToken(user);
+            System.out.println("[GitHub OAuth] Generated JWT for user id=" + user.getId());
+            return AuthResponseDTO.builder()
+                    .id(user.getId())
+                    .username(user.getUsername())
+                    .token(jwt)
+                    .build();
+        } catch (LoginException e) {
+            System.out.println("[GitHub OAuth] LoginException: " + e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            System.out.println("[GitHub OAuth] Unexpected error: " + e.getMessage());
+            throw new LoginException("Erro ao autenticar com o GitHub");
+        }
     }
 }
